@@ -1,0 +1,247 @@
+---
+title: "MATH 3080 Lab Project 2"
+author: "Harrison Webb"
+date: "1/20/2022"
+output:
+  html_document:
+    toc: TRUE
+---
+
+# Problem 1
+
+*Write a function that takes a variable number of arguments and prints them with
+each of the inputs separated by a new line. (Hint: There is a special character,
+`\n`, that represents new lines. The following code should suggest what to do:
+`cat("hello", "awesome", "world", sep = "\n")`)*
+
+#### Solution
+```{r, error = TRUE}
+printArguments = function(...) {
+  cat(c(...), sep = "\n")
+}
+
+printArguments("hi", "hello", "hola", 1, 2, 3)
+```
+
+# Problem 2
+
+*Write an infix operator that represents logical XOR. In logic, `x xor y` is
+true if only one of either `x` or `y` are true; if neither are true or both are
+true, then it's false. The following function implements XOR:*
+
+```{r}
+xor <- function(x, y) {
+  (x | y) & (!x | !y)
+}
+```
+
+*Write the infix operator `%xor%` that allows for the syntax `x %xor% y`.*
+
+#### Solution
+```{r, error = TRUE}
+`%xor%` <- function(x, y) {xor(x,y)} #just reuse above xor function
+```
+
+*The following should work as anticipated:*
+
+```{r, error = TRUE}
+TRUE %xor% TRUE  # Should be FALSE
+FALSE %xor% TRUE  # Should be TRUE
+TRUE %xor% FALSE  # Should be TRUE
+FALSE %xor% FALSE  # Should be FALSE
+```
+</br>
+
+# Problem 3
+
+*Newton's method is a numerical root-finding technique; that is, given a
+function $f$, the objective of the method is to find an input $x$ such that
+$f(x) = 0$. We call such an $x$ a* root. *The method is iterative. We start with
+an initial guess $x_0$. The algorithm then produces new approximations for the
+root $x$ via the formula:*
+
+$$x_{n + 1} = x_n - \frac{f(x_n)}{f'(x_n)}.$$
+
+*We need a rule for stopping the algorithm, and we could either stop at some
+fixed $N$ or when $\left|x_{n+1} - x_n\right| < \epsilon$ for some user-selected
+$\epsilon > 0$. (This represents some tolerable numerical error.)*
+
+*In this project you will write a function implementing Newton's method; call
+the function `newton_solver()`. Based on the above description this function
+must take at least the following inputs:*
+
+* *An initial $x_0$;*
+* *A function $f$;*
+* *The function's derivative $f'$;*
+* *A maximum number of iterations $N$; and*
+* *A desired numerical tolerance $\epsilon$.*
+
+*(One may think we need either $\epsilon$ or $N$ but in practice we should
+always have $N$ to ensure the algorithm terminates.)*
+
+*We will add additional behavioral constraints to the function.*
+
+* *There will be a loop where the update algorithm is applied. This loop should
+  terminate immediately if the numerical tolerance threshold is met; this can be
+  achieved via an `if` statement and `break`. But if the loop hits $N$
+  iterations, the function should throw a warning.*
+* *$f$ and $f'$ should be functions. They should return univariate `numeric`
+  values. If there ever comes a time where the input functions don't return a
+  single number, then `newton_solver()` should throw an error.*
+* *It's possible that $f'(x_n)$ could become zero and then a division-by-zero
+  error will occur. `newton_solver()` should stop with an error informing the
+  user that the derivative became zero.*
+* *We could have our function return a list with detailed information not just
+  with the obtained root but also with the value of $f$ at the root or how many
+  iterations of the algorithm went through. But instead, we will just have the
+  function return the obtained root.*
+* *The maximum number of iterations $N$ should be a positive number; the same
+  should be said for $\epsilon$. If not, an error should be thrown.*
+
+1. *Write `newton_solver()` based on the description above.*
+
+#### Solution part 1
+```{r, error = TRUE}
+#' Newton's Method for Finding Roots
+#'
+#' Implements Newton's method for finding roots of functions numerically
+#'
+#' This function implements Newton's method, a numerical root finding technique.
+#' Given a function \eqn{f}, its derivative \eqn{f'}, and an initial guess for
+#' the root \eqn{x_0}, the function finds the root via the iterative formula
+#'
+#' \deqn{x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}}
+#'
+#' @param f The function for which a root is sought
+#' @param fprime The function representing the derivative of \code{f}
+#' @param x0 The initial guess of the root
+#' @param N The maximum number of iterations
+#' @param eps The tolerable numerical error \eqn{\epsilon}
+#' @return The root of \code{f}
+#' @examples
+#' f <- function(x) {x^2}
+#' fprime <- function(x) {2 * x}
+#' newton_solver(f, fprime, x0 = 10, eps = 10^(-4))
+newton_solver <- function(f, fprime, x0, N = 1000, eps = 10e-4) {
+  #check if parameters are allowed
+  if(N < 1 | eps < 0){
+    #throw error
+    stop("invalid function parameters")
+  }
+  
+  #initialize x with x0
+  x = x0
+  
+  #return x0 if it is already a root
+  if(f(x) == 0){
+    return(x)
+  }
+  
+  #start algorithm
+  i = 0
+  repeat{
+    if(i >= N){
+      warning("Algorithm Exceeded Max Iterations")
+      break
+    }
+    
+    #check f(x) output
+    if(!is.numeric(f(x))){
+      stop("Error, f(x) output is not numeric")
+    } else if (length(f(x)) != 1){
+      stop("Error, f(x) output is not a single number")
+    }
+    
+    #check f'(x) output
+    if(!is.numeric(fprime(x))){
+      stop("Error, f'(x) output is not numeric")
+    } else if (length(fprime(x)) != 1){
+      stop("error, f'(x) output is not a single number")
+    }
+    
+    #check for divide by zero
+    if(fprime(x) == 0){
+      stop("Derivative is zero, stopping algorithm")
+    }
+      
+    #check if abs(current-prev) < eps
+    if(i > 0){ #check is not necessary until first iteration is complete
+      if(abs(x - x_prev) < eps){
+        return(x)
+      }
+    }
+    
+    x_prev = x
+    x = x - (f(x)/fprime(x))
+    i = i + 1
+  }
+  
+  return(x)
+}
+```
+
+#### *Test code for `newton_solver()` *
+
+```{r, error = TRUE}
+# Test code for newton_solver(); DO NOT EDIT
+f1 <- function(x) {x^2}
+fprime1 <- function(x) {2 * x}
+fprime2 <- function(x) {0}
+fprime3 <- function(x) {1}
+f2 <- function(x) {c(1, x^2)}
+fprime4 <- function(x) {c(1, 2 * x)}
+f3 <- function(x) {"oopsie!"}
+fprime5 <- function(x) {"dasies!"}
+
+# The following should execute without warning or error
+newton_solver(f1, fprime1, x0 = 10, eps = 10e-4)   # Should be close to zero
+newton_solver(f1, fprime1, x0 = -10, eps = 10e-4)  # Should be close to zero
+
+# The following code should produce errors if the function was written correctly
+newton_solver(f1, fprime2, x0 = 10)
+newton_solver(f2, fprime1, x0 = 10)
+newton_solver(f1, fprime4, x0 = 10)
+newton_solver(f3, fprime1, x0 = 10)
+newton_solver(f1, fprime5, x0 = 10)
+
+# The following code should produce warnings if the function was written
+# correctly
+newton_solver(f1, fprime3, x0 = 10, N = 2)
+```
+
+</br>
+
+2. *Use `newton_solver()` to maximize the function $g(x) = 1 - x^2$. Simple
+   calculus should reveal that the maximum is $g(0) = 1$. Maximizing $g$
+   requires finding a root for $g'$, since the maxima/minima of differentiable
+   functions occurs where $g'(x) = 0$. Compare the answer obtained by
+   `newton_solver()` to the known analytical result.*
+
+#### Solution part 2
+```{r, error = TRUE}
+g = function(x) {1 - x^2}
+g_prime = function(x) {-2*x}
+g_doubleprime = function(x) {-2}
+
+newton_solver(g_prime, g_doubleprime, x0 = 10) 
+```
+Newton_solver returns 0 as a root of $g'(x) = -2x$, which we can easily verify by seeing that 
+$g'(0) = -2(0) = 0$.
+
+</br>
+
+3. *Use `newton_solver()` to solve the equation:*
+
+$$e^x = -x$$
+
+*(This equation doesn't have a known analytical solution.)*
+
+#### Solution part 3
+```{r, error = TRUE}
+f = function(x) {exp(x) + x} #rearrange function to e^x + x = 0
+f_prime = function(x) {exp(x) + 1}
+
+newton_solver(f, f_prime, x0 = 10)
+
+```
+

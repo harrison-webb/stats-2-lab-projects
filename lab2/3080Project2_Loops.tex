@@ -1,0 +1,481 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={MATH 3080 Lab Project 2},
+  pdfauthor={Harrison Webb},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{MATH 3080 Lab Project 2}
+\author{Harrison Webb}
+\date{1/20/2022}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\hypertarget{problem-1}{%
+\section{Problem 1}\label{problem-1}}
+
+\emph{Write a function that takes a variable number of arguments and
+prints them with each of the inputs separated by a new line. (Hint:
+There is a special character, \texttt{\textbackslash{}n}, that
+represents new lines. The following code should suggest what to do:
+\texttt{cat("hello",\ "awesome",\ "world",\ sep\ =\ "\textbackslash{}n")})}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{printArguments }\OtherTok{=} \ControlFlowTok{function}\NormalTok{(...) \{}
+  \FunctionTok{cat}\NormalTok{(}\FunctionTok{c}\NormalTok{(...), }\AttributeTok{sep =} \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\NormalTok{\}}
+
+\FunctionTok{printArguments}\NormalTok{(}\StringTok{"hi"}\NormalTok{, }\StringTok{"hello"}\NormalTok{, }\StringTok{"hola"}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## hi
+## hello
+## hola
+## 1
+## 2
+## 3
+\end{verbatim}
+
+\hypertarget{problem-2}{%
+\section{Problem 2}\label{problem-2}}
+
+\emph{Write an infix operator that represents logical XOR. In logic,
+\texttt{x\ xor\ y} is true if only one of either \texttt{x} or
+\texttt{y} are true; if neither are true or both are true, then it's
+false. The following function implements XOR:}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{xor }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, y) \{}
+\NormalTok{  (x }\SpecialCharTok{|}\NormalTok{ y) }\SpecialCharTok{\&}\NormalTok{ (}\SpecialCharTok{!}\NormalTok{x }\SpecialCharTok{|} \SpecialCharTok{!}\NormalTok{y)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\emph{Write the infix operator \texttt{\%xor\%} that allows for the
+syntax \texttt{x\ \%xor\%\ y}.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Your code here}
+\StringTok{\textasciigrave{}}\AttributeTok{\%xor\%}\StringTok{\textasciigrave{}} \OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, y) \{}\FunctionTok{xor}\NormalTok{(x,y)\} }\CommentTok{\#just reuse above xor function}
+
+\ConstantTok{FALSE} \SpecialCharTok{\%xor\%} \ConstantTok{FALSE}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] FALSE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ConstantTok{TRUE} \SpecialCharTok{\%xor\%} \ConstantTok{FALSE}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ConstantTok{TRUE} \SpecialCharTok{\%xor\%} \ConstantTok{TRUE}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] FALSE
+\end{verbatim}
+
+\emph{The following should work as anticipated:}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ConstantTok{TRUE} \SpecialCharTok{\%xor\%} \ConstantTok{TRUE}  \CommentTok{\# Should be FALSE}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] FALSE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ConstantTok{FALSE} \SpecialCharTok{\%xor\%} \ConstantTok{TRUE}  \CommentTok{\# Should be TRUE}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ConstantTok{TRUE} \SpecialCharTok{\%xor\%} \ConstantTok{FALSE}  \CommentTok{\# Should be TRUE}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ConstantTok{FALSE} \SpecialCharTok{\%xor\%} \ConstantTok{FALSE}  \CommentTok{\# Should be FALSE}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] FALSE
+\end{verbatim}
+
+\hypertarget{problem-3}{%
+\section{Problem 3}\label{problem-3}}
+
+\emph{Newton's method is a numerical root-finding technique; that is,
+given a function \(f\), the objective of the method is to find an input
+\(x\) such that \(f(x) = 0\). We call such an \(x\) a} root. \emph{The
+method is iterative. We start with an initial guess \(x_0\). The
+algorithm then produces new approximations for the root \(x\) via the
+formula:}
+
+\[x_{n + 1} = x_n - \frac{f(x_n)}{f'(x_n)}.\]
+
+\emph{We need a rule for stopping the algorithm, and we could either
+stop at some fixed \(N\) or when
+\(\left|x_{n+1} - x_n\right| < \epsilon\) for some user-selected
+\(\epsilon > 0\). (This represents some tolerable numerical error.)}
+
+\emph{In this project you will write a function implementing Newton's
+method; call the function \texttt{newton\_solver()}. Based on the above
+description this function must take at least the following inputs:}
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{An initial \(x_0\);}
+\item
+  \emph{A function \(f\);}
+\item
+  \emph{The function's derivative \(f'\);}
+\item
+  \emph{A maximum number of iterations \(N\); and}
+\item
+  \emph{A desired numerical tolerance \(\epsilon\).}
+\end{itemize}
+
+\emph{(One may think we need either \(\epsilon\) or \(N\) but in
+practice we should always have \(N\) to ensure the algorithm
+terminates.)}
+
+\emph{We will add additional behavioral constraints to the function.}
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{There will be a loop where the update algorithm is applied. This
+  loop should terminate immediately if the numerical tolerance threshold
+  is met; this can be achieved via an \texttt{if} statement and
+  \texttt{break}. But if the loop hits \(N\) iterations, the function
+  should throw a warning.}
+\item
+  \emph{\(f\) and \(f'\) should be functions. They should return
+  univariate \texttt{numeric} values. If there ever comes a time where
+  the input functions don't return a single number, then
+  \texttt{newton\_solver()} should throw an error.}
+\item
+  \emph{It's possible that \(f'(x_n)\) could become zero and then a
+  division-by-zero error will occur. \texttt{newton\_solver()} should
+  stop with an error informing the user that the derivative became
+  zero.}
+\item
+  \emph{We could have our function return a list with detailed
+  information not just with the obtained root but also with the value of
+  \(f\) at the root or how many iterations of the algorithm went
+  through. But instead, we will just have the function return the
+  obtained root.}
+\item
+  \emph{The maximum number of iterations \(N\) should be a positive
+  number; the same should be said for \(\epsilon\). If not, an error
+  should be thrown.}
+\end{itemize}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \emph{Write \texttt{newton\_solver()} based on the description above.}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#\textquotesingle{} Newton\textquotesingle{}s Method for Finding Roots}
+\CommentTok{\#\textquotesingle{}}
+\CommentTok{\#\textquotesingle{} Implements Newton\textquotesingle{}s method for finding roots of functions numerically}
+\CommentTok{\#\textquotesingle{}}
+\CommentTok{\#\textquotesingle{} This function implements Newton\textquotesingle{}s method, a numerical root finding technique.}
+\CommentTok{\#\textquotesingle{} Given a function \textbackslash{}eqn\{f\}, its derivative \textbackslash{}eqn\{f\textquotesingle{}\}, and an initial guess for}
+\CommentTok{\#\textquotesingle{} the root \textbackslash{}eqn\{x\_0\}, the function finds the root via the iterative formula}
+\CommentTok{\#\textquotesingle{}}
+\CommentTok{\#\textquotesingle{} \textbackslash{}deqn\{x\_\{n+1\} = x\_n {-} \textbackslash{}frac\{f(x\_n)\}\{f\textquotesingle{}(x\_n)\}\}}
+\CommentTok{\#\textquotesingle{}}
+\CommentTok{\#\textquotesingle{} @param f The function for which a root is sought}
+\CommentTok{\#\textquotesingle{} @param fprime The function representing the derivative of \textbackslash{}code\{f\}}
+\CommentTok{\#\textquotesingle{} @param x0 The initial guess of the root}
+\CommentTok{\#\textquotesingle{} @param N The maximum number of iterations}
+\CommentTok{\#\textquotesingle{} @param eps The tolerable numerical error \textbackslash{}eqn\{\textbackslash{}epsilon\}}
+\CommentTok{\#\textquotesingle{} @return The root of \textbackslash{}code\{f\}}
+\CommentTok{\#\textquotesingle{} @examples}
+\CommentTok{\#\textquotesingle{} f \textless{}{-} function(x) \{x\^{}2\}}
+\CommentTok{\#\textquotesingle{} fprime \textless{}{-} function(x) \{2 * x\}}
+\CommentTok{\#\textquotesingle{} newton\_solver(f, fprime, x0 = 10, eps = 10\^{}({-}4))}
+\NormalTok{newton\_solver }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(f, fprime, x0, }\AttributeTok{N =} \DecValTok{1000}\NormalTok{, }\AttributeTok{eps =} \FloatTok{10e{-}4}\NormalTok{) \{}
+  \CommentTok{\# Your code here}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\emph{The following code tests whether \texttt{newton\_solver()} works
+as specified. \textbf{BEWARE: IF THIS CODE DOES NOT RUN AS ANTICIPATED
+OR TAKES LONGER THAN 10 SECONDS TO RUN, YOU WON'T RECEIVE CREDIT!}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Test code for newton\_solver(); DO NOT EDIT}
+\NormalTok{f1 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) \{x}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{\}}
+\NormalTok{fprime1 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) \{}\DecValTok{2} \SpecialCharTok{*}\NormalTok{ x\}}
+\NormalTok{fprime2 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) \{}\DecValTok{0}\NormalTok{\}}
+\NormalTok{fprime3 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) \{}\DecValTok{1}\NormalTok{\}}
+\NormalTok{f2 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) \{}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, x}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)\}}
+\NormalTok{fprime4 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) \{}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{2} \SpecialCharTok{*}\NormalTok{ x)\}}
+\NormalTok{f3 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) \{}\StringTok{"oopsie!"}\NormalTok{\}}
+\NormalTok{fprime5 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) \{}\StringTok{"dasies!"}\NormalTok{\}}
+
+\CommentTok{\# The following should execute without warning or error}
+\FunctionTok{newton\_solver}\NormalTok{(f1, fprime1, }\AttributeTok{x0 =} \DecValTok{10}\NormalTok{, }\AttributeTok{eps =} \FloatTok{10e{-}4}\NormalTok{)   }\CommentTok{\# Should be close to zero}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## NULL
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{newton\_solver}\NormalTok{(f1, fprime1, }\AttributeTok{x0 =} \SpecialCharTok{{-}}\DecValTok{10}\NormalTok{, }\AttributeTok{eps =} \FloatTok{10e{-}4}\NormalTok{)  }\CommentTok{\# Should be close to zero}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## NULL
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# The following code should produce errors if the function was written correctly}
+\FunctionTok{newton\_solver}\NormalTok{(f1, fprime2, }\AttributeTok{x0 =} \DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## NULL
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{newton\_solver}\NormalTok{(f2, fprime1, }\AttributeTok{x0 =} \DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## NULL
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{newton\_solver}\NormalTok{(f1, fprime4, }\AttributeTok{x0 =} \DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## NULL
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{newton\_solver}\NormalTok{(f3, fprime1, }\AttributeTok{x0 =} \DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## NULL
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{newton\_solver}\NormalTok{(f1, fprime5, }\AttributeTok{x0 =} \DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## NULL
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# The following code should produce warnings if the function was written}
+\CommentTok{\# correctly}
+\FunctionTok{newton\_solver}\NormalTok{(f1, fprime3, }\AttributeTok{x0 =} \DecValTok{10}\NormalTok{, }\AttributeTok{N =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## NULL
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  \emph{Use \texttt{newton\_solver()} to maximize the function
+  \(g(x) = 1 - x^2\). Simple calculus should reveal that the maximum is
+  \(g(0) = 1\). Maximizing \(g\) requires finding a root for \(g'\),
+  since the maxima/minima of differentiable functions occurs where
+  \(g'(x) = 0\). Compare the answer obtained by
+  \texttt{newton\_solver()} to the known analytical result.}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Your code here}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  \emph{Use \texttt{newton\_solver()} to solve the equation:}
+\end{enumerate}
+
+\[e^x = -x\]
+
+\emph{(This equation doesn't have a known analytical solution.)}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Your code here}
+\end{Highlighting}
+\end{Shaded}
+
+
+\end{document}

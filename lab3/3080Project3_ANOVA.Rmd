@@ -1,0 +1,108 @@
+---
+title: "MATH 3080 Lab Project 3"
+author: "Harrison Webb"
+date: "12/29/2019"
+output:
+  html_document:
+    toc: TRUE
+---
+
+# Problem 1 (Verzani problem 12.2)
+
+*For the data set `Cars93` (**MASS**) perform a one-way analysis of variance of
+`MPG.highway` for each level of `DriveTrain`. Does the data support the null
+hypothesis of equal population means? (Use `aov()` for this problem.)*
+
+```{r, include=FALSE}
+library(MASS)
+```
+
+#### Solution
+```{r, error = TRUE, fig.cap="Variances appear to differ a bit more than we would like, but we will still carryout the test"}
+#check equal variances
+boxplot(MPG.highway~DriveTrain, data = Cars93)
+
+#check normality
+shapiro.test(Cars93$MPG.highway) #Shapiro test results do not strongly indicate a normal distribution, but we'll proceed anyway
+
+#conduct ANOVA test
+result = aov(MPG.highway~DriveTrain, data = Cars93)
+summary(result)
+```
+We get a p-value of 0.00281 which is smaller than 0.05, so we reject $H_0$ and have reason to believe that the means of each group are not all the same.
+
+</br>
+
+# Problem 2 (Verzani problem 12.4)
+
+*The data set `carsafety` (**UsingR**) contains car-crash data. For several
+makes of cars the number of drivers killed per million is recorded in
+`Drivers.deaths`. The number of drivers of other cars killed in accidents with
+these cars, per million, is recorded in `Other.deaths`. The variable `type` is a
+factor indicating the type of car.*
+
+*Perform a one-way analysis of variance of the model `Drivers.deaths ~ type`. Is
+there a difference in population means? Did you assume equal variances? Normally
+distributed populations?*
+
+*Repeat with an analysis of variance of the model `Other.deaths ~ type`. Is
+there a difference in population means? (Use `oneway.test()` for this problem.)*
+```{r, include=FALSE}
+library(UsingR)
+```
+
+```{r, error = TRUE, out.width='100%'}
+
+#First we will check for normality of the data
+shapiro.test(carsafety$Driver.deaths)
+
+#Now construct a boxplot to look at variance of each type
+boxplot(Driver.deaths~type, data = carsafety, las = 2)
+par(cex.lab=.1)
+
+```
+
+# Problem 3 (Verzani problem 12.7)
+
+*A manufacturer of point-of-sale merchandise tests three types of ENTER-button
+markings. They wish to minimize wear, as customers get annoyed when the markings
+on this button wear off. They construct a test of the three types, and conduct
+several trials for each. The results, in unspecified units, are recorded in the
+following table:*
+
+|        |     |     |     |     |     |     |
+|--------|-----|-----|-----|-----|-----|-----|
+| Type 1 | 303 | 293 | 296 | 299 | 298 |     |
+| Type 2 | 322 | 326 | 315 | 318 | 320 | 320 |
+| Type 3 | 309 | 327 | 317 | 315 |     |     |
+
+*Is there a difference in wear time among the three types? Answer this using a
+one-way ANOVA.*
+
+```{r, error = TRUE}
+# Your code here
+#make one vector for types and another for #s
+```
+
+# Problem 4 (Verzani problem 12.13)
+
+*For the data in Problem 2, perform the one-way ANOVA using `lm()`. Compare to
+the results of `oneway.test()`.*
+
+```{r, error = TRUE}
+# Your code here
+```
+
+# Problem 5 (Verzani problem 12.19)
+
+*The `InsectSprays` data set contains a variable `count`, which counts the
+number of insects and a factor `spray`, which indicates the treatment given.*
+
+*First perform an analysis of variance to see whether the treatments make a
+difference. If so, perform the Tukey HSD procedure to see which pairwise
+treatments differ.*
+
+```{r, error = TRUE}
+# Your code here
+```
+
