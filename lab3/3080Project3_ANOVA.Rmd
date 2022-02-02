@@ -18,9 +18,9 @@ library(MASS)
 ```
 
 #### Solution
-```{r, error = TRUE, fig.cap="Variances appear to differ a bit more than we would like, but we will still carryout the test"}
+```{r, error = TRUE, fig.cap="Variances appear to differ a bit more than we would like, but we will still carryout the test", fig.align='center'}
 #check equal variances
-boxplot(MPG.highway~DriveTrain, data = Cars93)
+boxplot(MPG.highway~DriveTrain, data = Cars93, col = c("darkgreen", "blue", "orange"))
 
 #check normality
 shapiro.test(Cars93$MPG.highway) #Shapiro test results do not strongly indicate a normal distribution, but we'll proceed anyway
@@ -50,17 +50,26 @@ there a difference in population means? (Use `oneway.test()` for this problem.)*
 ```{r, include=FALSE}
 library(UsingR)
 ```
-
-```{r, error = TRUE, out.width='100%'}
+#### Solution
+```{r, error = TRUE, out.width='85%', fig.align='center'}
 
 #First we will check for normality of the data
 shapiro.test(carsafety$Driver.deaths)
 
 #Now construct a boxplot to look at variance of each type
-boxplot(Driver.deaths~type, data = carsafety, las = 2)
-par(cex.lab=.1)
+par(mar=c(7,4,4,1))
+boxplot(Driver.deaths~type, data = carsafety, las = 2, xlab = "", ylab = "Deaths", main = "Driver deaths vs Car Type", col = carsafety$type)
+mtext("Car Type", 1, line = 5)
 
 ```
+</br>
+It appears that the groups of SUV, Compact, Large, and Midsize have similar variances, while Minivan, pickup, and Subcompact appear to have different variances. Additionally, the Shapiro test does not strongly indicate a normal distribution, but we'll proceed anyway.
+
+With ANOVA, our null hypothesis $H_0$ is $\mu_1 = \mu_2 =  ... = \mu_n$, and the alternate hypothesis $H_a$ is that not all means are equal. Now, run the ANOVA test using oneway.test:
+```{r}
+oneway.test(Driver.deaths~type, data = carsafety, var.equal = TRUE)
+```
+We get a p-value of 0.01407 which is smaller than 0.05, so we reject $H_0$ and have reason to believe that the means of each group are not all the same.
 
 # Problem 3 (Verzani problem 12.7)
 
@@ -79,10 +88,31 @@ following table:*
 *Is there a difference in wear time among the three types? Answer this using a
 one-way ANOVA.*
 
-```{r, error = TRUE}
+#### Solution
+
+First we will create a data frame to make working with this data easier. Constructing a boxplot for each type, we see that the variances are pretty comparable between the three groups.
+```{r, error = TRUE, fig.align='center'}
 # Your code here
 #make one vector for types and another for #s
+df = data.frame(Type1 = c(303, 293, 296, 299, 298, NA),
+                              Type2 = c(322, 326, 315, 318, 320, 320),
+                              Type3 = c(309, 327, 317, 315, NA, NA))
+
+df2= data.frame(type = c(1,1,1,1,1,2,2,2,2,2,2,3,3,3,3),
+                value = c(303,293,296,299,298,322,326,315,318,320,320,309,327,317,315))
+boxplot(value~type, data = df2, col = c("#4c23ba", "#d70081", "#ff3838"))
 ```
+Next, check the normality of the data using Shapiro test:
+```{r}
+shapiro.test(df2$value)
+```
+We get a p-value of 0.1518, so let's assume that the data is approximately normal.
+We have 'confirmed' our assumptions of equivariance and normality, and can now conduct the test.
+```{r}
+oneway.test(value~type, data = df2, var.equal = TRUE)
+```
+This p value is extremely small, so we can reject the null hypothesis that the means of the three groups are the same in favor of the alternative hypotheses that the means are not all the same.
+</br>
 
 # Problem 4 (Verzani problem 12.13)
 
