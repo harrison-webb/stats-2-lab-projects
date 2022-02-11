@@ -1,0 +1,103 @@
+---
+title: "Lab 5 Notes"
+output: html_notebook
+---
+
+Week 5 Linear Models
+
+## Review from last week
+Prediction Intervals 
+  - Interval estimating taking "one more sample" based on a parent sample
+  -Dependent on sample distribution
+
+Replication Interval - 
+
+Tolerance Interval
+   - Contains a certain percent of the data with a certain certainty
+
+Nonparametric Interval
+   - Dont assume anyting about distribution
+
+
+
+## Linear Regression
+
+Simple Linear Regression
+$y_i = \beta_0 + \beta_1 * x + \epsilon_i$
+Goal: estimate $\beta_0$ and $\beta_1$
+
+Transformations can allow us to use linear models for many uses
+
+### Basic Linear Model
+```{r}
+summary(iris)
+model1 = lm(Sepal.Length~Sepal.Width, data = iris)
+summary(model1)
+
+#Plot
+plot(Sepal.Length~Sepal.Width, data = iris, col = Species, pch = 20)
+abline(model1)
+
+
+```
+### Fitting Different LInes for different species
+```{r}
+#Fit different lines per species
+setosaModel = lm(Sepal.Length~Sepal.Width, data = iris, subset = Species == "setosa")
+summary(setosaModel)
+plot(Sepal.Length~Sepal.Width, data = iris, col = Species, pch = 20, subset = Species == "setosa")
+abline(setosaModel)
+```
+
+### Suppressing the Intercept with a -1
+```{r}
+suppressedModel = lm(Sepal.Length~Sepal.Width-1, data = iris)
+suppressedModel
+#summary(suppressedModel)
+
+```
+
+lm() has some funky special operations. Use I() around any math expression to be interpreted literally
+```{r}
+lm(Sepal.Length~I(Sepal.Width^2), data = iris)
+```
+
+
+### Looking at the Model Summary
+```{r}
+setosaModel$coefficients #Get coefficients
+setosaModel$residuals #get residuals
+```
+
+However, its better to access this info with the respective functions
+```{r}
+coef(setosaModel)
+resid(setosaModel)
+```
+
+
+### Scale Function
+Standardizes data: subtracts mean, divides by standard deviation
+If forming a linear model on scaled data, interpretation is that a 1 sd increase in x leads to a 1 sd increase in y
+
+```{r}
+scaled = scale(iris$Sepal.Length)
+mean(scaled)
+sd(scaled)
+
+lm(scale(Sepal.Length)~scale(Sepal.Width), data = iris)
+```
+
+### Predict Function
+Allows for interpolation along the line
+Arguments:
+   1. lm result
+   2. Must be a data frame
+   3. Data frame name must match the originally used name
+
+Don't abuse this for extrapolation
+
+```{r}
+predict(setosaModel, data.frame(Sepal.Width = c(2.7, 3.2, 3.7)))
+```
+

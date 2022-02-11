@@ -1,0 +1,145 @@
+---
+title: "3080 Lecture 5"
+author: "Julie Sherman"
+date: "1/6/2022"
+output: 
+   html_document:
+      toc: TRUE
+---
+# Lecture 5
+## Linear Regression Models
+A linear regression model is a statistical model of the form:
+$$y_i=\beta_0+\beta_1x_{1i}+\cdots+\beta_kx_{ki}+\epsilon_i$$
+The term $y_i$ is the **response variable** or **dependent variable**, while the variables $x_{1i},\dots x_{ki}$  are called **explanatory variables**, **independent variables**, or **regressors**. The terms $\beta_0,\beta-1,\dots,\beta_k$ are called the **coefficients** of the model, and  $\epsilon_i$ is the **error** or **residual** term. The term $\beta_0$  is often called the **intercept** of the model since it’s the predicted value of $y_i$ when all the explanatory variables are zero.
+
+**Simple linear regression** refers to a linear regression model with only one explanatory variable:
+$$y_i = \beta_0+\beta_1x_i+\epsilon_i.$$
+
+This model corresponds to the one-dimensional lines all math students studied in basic algebra, and it’s easily visualized. Additionally, when estimating the model via least-squares estimation, it’s easy and intuitive to write the answer. (Actually the least-squares solution for the full model isn’t hard to write either after one learns some linear algebra, but matrices may scare novice statistics students.) However, the model is generally too simple and real-world applications generally include more than one regressor.
+
+Generally statisticians treat the term  $\epsilon_i$ as the only source of randomness in linear regression models; regressors may or may not be random. Thus most assumption concern the behavior of  $\epsilon_i$, and include assuming that $E[\epsilon_i]=0$ and $\text{Var}(\epsilon_i) = \sigma^2$. We may say more about the errors, such as that the errors are *i.i.d.* and maybe Normally distributed.
+
+## Estimating Simple Linear Regression Models
+The models listed above are population models. Our objective is to estimate the parameters of these models. Let $\hat{\beta}_0$ and $\hat{\beta}_1$ denote estimates of  $\beta_0$ and $\beta_1$, respectively. The predicted value of  $y$ given an input  $x$ is: $\hat{y} = \hat{\beta}_0+\hat{\beta}_1x.$
+We call  $\hat{\epsilon_i} = y_i - \hat{y_i}$ the **estimated residual** of the model. The question now is how one should estimate the coefficients of the model. The most popular approach is **least-squares minimization**, where   $\hat{\beta}_0$  and  $\hat{\beta}_1$ are picked such that the sum of square errors:
+$$SSE( \hat{\beta}_0 , \hat{\beta}_1) = \sum_{i=1}^N(y_i-\hat{y}_i)^2$$
+is minimized. Suppose  $r$ is the sample correlation,  $s_x$  is the sample standard devitation of the explanatory variable, $s_y$  the sample standard deviation of the response variable, $\bar{x}$ the sample mean of the explanatory variable, and  $\bar{y}$ the sample mean of the response variable. Then we have a simple solution for the estimates of the coefficients of the least-squares line:
+$$\hat{\beta}_1 = r\frac{s_y}{s_x}\\
+\hat{\beta_0} = \bar{y}-\hat{\beta}_1\bar{x}.$$
+
+Practitioners also often wish to estimate the variance of the residuals, $\sigma^2$, and do so using  $\hat{\sigma}^2 = \frac{1}{n-2}SSE(\hat{\beta}_1,\hat{\beta}_2).$ The term $n-2$ is the **degrees of freedom** of the simple linear regression model.
+
+When estimating using least squares, the predicted value $\hat{y}$ can be interpreted as the expected value of the response variable  $y$ given the value of the explanatory variable $x$. In fact, the predicted value of $y$ at the mean of the explanatory variables $\bar{x}$ is $\bar{y}$. Regression models, however, don’t have to be estimated using the least-squares principle; for example, we could adopt the least absolute deviation principle, and the interpretation of  $\hat{y}$ would change if we did so. Additionally, the coefficients of the model get interpretations; we say that if we increase an input explanatory variable $x$ by one unit, then we expect  $y$ to be  $\beta_1$  units higher. (The intercept term is generally less interesting in regression models, but its interpretation is clear; it’s the expected value of  $y$  when  $x=0$.) It’s because of interpretations like these that we may rescale the data, replacing $x_i$ with  $\frac{x_i-\bar{x}}{s_x}$ and $x_i$ with  $\frac{y_i-\bar{y}}{s_y}$. Then we would interpret  $\beta_1$ as being how many standard deviations $y$ changes by when we change  $x$ by one standard deviation. This is a more universally interpretable model.
+
+Linear models are in fact quite expressive; many interesting models can be written as linear models. For instance, consider the model:
+
+$$y_i = \gamma_0\gamma_1^{x_i}\eta_i.$$
+ 
+
+In this model, $\eta_i$  is the multiplicative residual, and is assumed to be non-negative with mean 1. If we take the natural log of both sides of this equation, we obtain the model:
+$$\ln(y_i) = \ln(\gamma_0)+\ln(\gamma_1)x_i+\ln(\eta_i).$$
+
+This is in fact the linear model we’ve already been considering, but one for  $\ln(y_i)$  rather than $y_i$ directly. This is known as a **log transformation**, a useful and popular trick. The interpretations of the coefficients change, though: a unit increase in the exogenous variable causes us to expect a $\beta_1\%$  change in  $y_i$. There’s also the model:
+$$y_i = \beta_0+\beta_1\ln(x_i)+\epsilon_i.$$
+ 
+
+In this model a 1% change in the regressor leads to an expected increase of  $\beta_1$ of the response. There’s also the model:
+$$\ln(y_i) = \beta_0+\beta_1\ln(x_i)+\epsilon_i.$$ 
+
+Here, a 1% increase in  $x_i$ would cause us to expect a  $\beta_1\%$ increase in  $y_i$. These interpretations matter, and are a part of model building.
+
+In R, linear models are estimated using the function `lm()`. If `x` is the explanatory variable and `y` the response variable and both are in a data set `d`, we estimate the model using `lm(y ~ x, data = d)`. Generally we save the results of the fit for later use.
+
+Let’s estimate a linear regression model for the sepal length of iris flowers using the sepal width. We can do so with the following:
+```{r}
+(fit <- lm(Sepal.Length ~ Sepal.Width, data = iris))
+```
+We don’t need to explicitly tell R to include an intercept term; `lm()` automatically includes one. In general you should include intercept terms in your regression models even if the theoretical model you’re estimating does not have an intercept term, since doing so helps ensure the residuals of the model have mean zero. However, if you really want to exclude the intercept term (and thus be fitting the model  $y_i=\beta x_i+\epsilon_i$), you can suppress intercept term estimation like so:
+
+```{r}
+lm(Sepal.Length ~ Sepal.Width - 1, data = iris)
+```
+R will print out a basic summary of a `lm()` fit when the fit object (an object of class `lm`) is printed. We can see more information using `summary()`.
+
+```{r}
+summary(fit)
+```
+
+We will discuss later the meaning of this information. That said, while this information is nice, it’s not… pretty. There is a package called **stargazer**, though, that is meant for making nice presentations of regression results.
+```{r}
+library(stargazer)
+
+stargazer(fit, type = "text")
+```
+Actually, `stargazer()` can print out these regression tables in other formats, particularly LaTeX and HTML. This makes inserting these tables into other documents (specifically, papers) easier. (If you want to put your table into a word processor such as Microsoft Word, try HTML format, and save in an HTML document; the text processor may be able to convert the HTML table into something it understands. Or you could just man up and learn LaTeX; it looks better anyway.)
+
+```{r}
+stargazer(fit)  # Default is LaTeX
+```
+
+There’s a lot of `stargazer()` parameters you can modify to get just the right table you want, and I invite you to read the function’s documentation for yourself if you’re planning on publishing your regression models; for now it makes no sense to discuss this when we’re not even sure what we’re modifying!
+
+That said, we may want specific information from our model. `lm()` returns a list with the class `lm`, and we can examine this list to see what information is already available to us:
+```{r}
+str(fit)
+```
+One thing we may want is the model’s coefficients: we can obtain them using the `coef()` function (or use, say, `fit$coefficients`).
+
+```{r}
+coef(fit)
+```
+We may also want the residuals of the model; we can get those using `resid()` or `fit$residuals`.
+
+```{r}
+resid(fit)
+```
+The advantage of using the functions rather than accessing the components requested directly is that `coef()` and `resid()` are generic functions, and thus work with objects that are not `lm`-class objects (such as `glm`-class objects or objects provided in packages).
+
+Seeing as we’re working in two dimensions, plotting simple linear regression lines makes sense. The function `abline()` allows us to plot regression lines.
+
+```{r}
+plot(Sepal.Length ~ Sepal.Width, data = iris, col = Species, pch = 20)
+abline(fit)
+```
+
+Do you notice something odd about this line? It’s a downward-sloping line, but if we look at individual groups in the data, we see what appears to be a positive relationship between sepal length and width. This is a phenomenon known as **Simpson’s paradox**, where the trend line in subgroups differs with the trend line across groups. In this case, setosa flower tend to have larger sepal widths but lower length than the other flowers, yet there’s still a positive relationship between the two. Perhaps instead we should disaggregate and look at the regression line for only setosa flowers. Fortunately `lm()` provides an easy interface for selecting a subset of a data set.
+```{r}
+(fit <- lm(Sepal.Length ~ Sepal.Width, data = iris,
+                                       subset = Species == "setosa"))
+plot(Sepal.Length ~ Sepal.Width, data = iris, subset = Species == "setosa",
+     pch = 20)
+abline(fit)
+```
+
+That line makes much more sense.
+
+What if we want to call a function on our variables or apply some transformation to them? We can use function calls in formulas. For example, if we wanted to attempt to fit a log model to our data, we could do so like so:
+
+```{r}
+lm(log(Sepal.Length) ~ Sepal.Width, data = iris, subset = Species == "setosa")
+
+lm(Sepal.Length ~ log(Sepal.Width), data = iris, subset = Species == "setosa")
+```
+However, for operations such as `^` or `*` that have special meaning in formulas, you should call such operations using `I()`, like so:
+
+```{r}
+lm(Sepal.Length ~ I(Sepal.Width ^ 2), data = iris, subset = Species == "setosa")
+```
+A handy function is the `scale()` function which centers the data around its mean and subtracts out the standard deviation.
+
+```{r}
+# Showing what scale() does
+with(iris, cbind(Sepal.Length, scale(Sepal.Width)))
+
+lm(scale(Sepal.Length) ~ scale(Sepal.Width), data = iris,
+   subset = Species == "setosa")
+```
+Note that the interpretation of the coefficients when computed on scaled data differs from the interpretation for unscaled data.
+
+Above a line was plotted. This line represents the predicted sepal lengths given the sepal widths. It’s possible to get predicted values at specific points on the line, for specific sepal widths. The function `predict()` (a generic function) gets predicted values. To use it, one must give a data frame resembling the one from which the model was estimated, except perhaps leaving out the variable we’re attempting to predict.
+```{r}
+predict(fit)  # Returns predicted values at observed sepal widths
+
+predict(fit, newdata = data.frame(Sepal.Width = c(2, 3, 4)))
+```
+When making predictions, though, you should avoid **extrapolation**, which is making predictions outside of the range of the data. Going slightly outside the range of the data is fine, but well outside the range is a problem. We will talk later about estimating prediction errors, but leaving the range of the data tends to produce predictions with high error. More importantly, though, while a linear model may be appropriate in a certain range of the data, the same linear model may not be appropriate outside of the range; data might be *locally* linear rather than *globally* linear. This means that outside of the range the model is likely to be wrong, and a different model should be used. Since no data was observed in that range, though, determining and estimating that model is hard.

@@ -1,0 +1,177 @@
+---
+title: "MATH 3080 Lab Project 5"
+author: "Harrison Webb"
+date: "10 Feb 2022"
+output:
+  html_document:
+    toc: TRUE
+    keep_md: TRUE
+---
+
+# Problem 1 (Verzani problem 11.1)
+
+*For the `Cars93` (**MASS**) data set, answer the following:*
+
+1. *For `MPG.highway` modeled by `Horsepower`, find the simple regression
+   coefficients. What is the predicted mileage for a car with 225 horsepower?*
+   
+#### Solution
+
+```{r, include=FALSE}
+library(MASS)
+```
+
+```{r, error = TRUE, fig.align='center', out.width='75%'}
+carModel = lm(MPG.highway~Horsepower, data = Cars93)
+
+plot(MPG.highway~Horsepower, data = Cars93)
+abline(carModel)
+summary(carModel)
+```
+</br>
+Predicted Mileage for a car with 225 horsepower:
+```{r}
+predict(carModel, data.frame(Horsepower = 225))
+```
+</br>
+Using this model, the prediction for highway MPG of a car with 225 horsepower is 23.97.
+The data appears to have somewhat of an exponential distribution. We can possibly get a better model by applying a log transformation on the data and creating a new linear model based on that.
+
+```{r, fig.align='center', out.width='75%'}
+plot(log(MPG.highway)~Horsepower, data = Cars93, main = "Linear Model fit to Transformed Data")
+carModelTranform = lm(log(MPG.highway)~Horsepower, data = Cars93)
+abline(carModelTranform)
+summary(carModelTranform)
+```
+Though the p-values for the transformed model are a bit better, the $R^2$ values are about the same, so this model may not have much of an advantage over the original.
+```{r}
+exp(predict(carModelTranform, data.frame(Horsepower = 225)))
+```
+Using this transformed model, we predict a MPG of 24.2 for a car with 225 horsepower. Clearly, not a very substantial difference between this value and the previous one.
+</br>
+
+
+2. *Fit the linear model with `MPG.highway` modeled by `Weight`. Find the
+   predicted highway mileage of a 6,400 pound HUMMER H2 and a 2,524 pound MINI
+   Cooper.*
+
+```{r, error = TRUE, fig.align='center', out.width='75%'}
+plot(MPG.highway~Weight, data = Cars93)
+weightModel = lm(MPG.highway~Weight, data = Cars93)
+abline(weightModel)
+```
+Predict Highway MPG of a 6,400lbs Hummer H2:
+```{r}
+predict(weightModel, data.frame(Weight = 6400))
+```
+
+Predict Highway MPG of a 2524lbs Mini Cooper:
+```{r}
+predict(weightModel, data.frame(Weight = 2524))
+```
+
+
+3. *Fit the linear model `Max.Price` modeled by `Min.Price`. Why might you
+   expect the slope to be around 1?*
+
+#### Solution
+
+```{r, error = TRUE}
+plot(Max.Price~Min.Price, data = Cars93)
+```
+When modeling max price vs min price, we expect the slope to be around 1 because we can predict that a slight increase in the max price of a car will lead to a near-equal increase in the min price of that car.
+
+**BONUS**: *Can you think of any other linear relationships among the
+variables?*
+
+```{r, error = TRUE}
+head(Cars93)
+```
+Looking at turn radius vs wheelbase
+```{r}
+plot(Turn.circle~Wheelbase, data = Cars93, main = "Turn Radius vs Wheelbase")
+```
+
+Looking at MPG vs price
+```{r}
+plot(MPG.highway~Price, data = Cars93, main = "Highway MPG vs Price")
+```
+</br>
+This is a bit surprising to me, as I was expecting an increase in price to correspond with an increase in MPG (higher price = more high tech = better mpg). However, clearly this is not the case, perhaps because more expensive cars cater more to 'car aficionados' who are less concerned with the MPG their cars get, and more with performance.
+
+Looking at engine size vs horsepower
+```{r}
+plot(Horsepower~EngineSize, data = Cars93, main = "Horsepower vs Engine Size")
+```
+
+</br>
+
+# Problem 2 (Verzani problem 11.2)
+
+*For the data set `MLBattend` (**UsingR**) concerning Major League Baseball
+attendance, fit a linear model of `attendance` modeled by `wins`. What is the
+predicted increase in attendance if a team that won 80 games last year wins 90
+this year?*
+
+```{r, error = TRUE}
+# Your code here
+```
+
+# Problem 3 (Verzani problem 11.3)
+
+*People often predict children's future height by using their 2-year-old height.
+A common rule is to double the height. The table contains data for eight
+people's heights as 2-year-olds and as adults. Using the data, what is the
+predicted adult height for a 2-year-old who is 33 inches tall?*
+
+Group       |    |    |    |    |    |    |    |    |
+------------|----|----|----|----|----|----|----|----|
+Age 2 (in.) | 39 | 30 | 32 | 34 | 35 | 36 | 36 | 30 |
+Adult (in.) | 71 | 63 | 63 | 67 | 68 | 68 | 70 | 64 |
+
+```{r, error = TRUE}
+# Your code here
+```
+
+# Problem 4 (Verzani problem 11.4)
+
+*The `galton` (**UsingR**) data set contains data collected by Francis Galton in
+1885 concerning the influence a parent's height has on a child's height. Fit a
+linear model for a child's height modeled by his parent's height. Make a
+scatterplot with a regression line. (Is this data set a good candidate for using
+`jitter()`?) What is the value of $\hat{\beta}_1$, and why is this of interest?*
+
+```{r, error = TRUE}
+# Your code here
+```
+
+# Problem 5 (Verzani problem 11.5)
+
+*The formulas*
+
+$$\hat{\beta}_1 = \frac{\sum_{i = 1}^n (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i =
+1}^n (x_i - \bar{x})^2},$$
+
+$$\hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x},$$
+
+*and the prediction line equation can be rewritten in terms of the correlation
+coefficient, $r$, as*
+
+$$\frac{\hat{y}_i - \bar{y}}{s_y} = r \frac{x_i - \bar{x}}{s_x}.$$
+
+*Thus the five summary numbers: the two means, the standard deviations, and the
+correlation coefficient are fundamental for regression analysis.*
+
+*This is interpreted as follows. Scaled differences of $\hat{y}_i$ from the mean
+$\bar{y}$ are less than the scaled differences of $x_i$ from $\bar{x}$, as
+$\left|r\right| \le 1$. That is, "regression" toward the mean, as unusually
+large differences from the mean are lessened in their prediction for $y$.*
+
+*For the data set `galton` (**UsingR**) use `scale()` on the variables `parent`
+and `child`, and then model the height of the child by the height of the parent.
+What are the estimates for $r$ and $\beta_1$.*
+
+```{r, error = TRUE}
+# Your code here
+```
+
