@@ -19,6 +19,7 @@ output:
 
 ```{r, include=FALSE}
 library(MASS)
+library(UsingR)
 ```
 
 ```{r, error = TRUE, fig.align='center', out.width='75%'}
@@ -76,8 +77,10 @@ predict(weightModel, data.frame(Weight = 2524))
 
 #### Solution
 
-```{r, error = TRUE}
+```{r, error = TRUE, fig.align='center', out.width='75%'}
+priceModel = lm(Max.Price~Min.Price, data = Cars93)
 plot(Max.Price~Min.Price, data = Cars93)
+abline(priceModel)
 ```
 When modeling max price vs min price, we expect the slope to be around 1 because we can predict that a slight increase in the max price of a car will lead to a near-equal increase in the min price of that car.
 
@@ -88,19 +91,19 @@ variables?*
 head(Cars93)
 ```
 Looking at turn radius vs wheelbase
-```{r}
+```{r, fig.align='center', out.width='75%'}
 plot(Turn.circle~Wheelbase, data = Cars93, main = "Turn Radius vs Wheelbase")
 ```
 
 Looking at MPG vs price
-```{r}
+```{r, fig.align='center', out.width='75%'}
 plot(MPG.highway~Price, data = Cars93, main = "Highway MPG vs Price")
 ```
 </br>
 This is a bit surprising to me, as I was expecting an increase in price to correspond with an increase in MPG (higher price = more high tech = better mpg). However, clearly this is not the case, perhaps because more expensive cars cater more to 'car aficionados' who are less concerned with the MPG their cars get, and more with performance.
 
 Looking at engine size vs horsepower
-```{r}
+```{r, fig.align='center', out.width='75%'}
 plot(Horsepower~EngineSize, data = Cars93, main = "Horsepower vs Engine Size")
 ```
 
@@ -113,9 +116,35 @@ attendance, fit a linear model of `attendance` modeled by `wins`. What is the
 predicted increase in attendance if a team that won 80 games last year wins 90
 this year?*
 
-```{r, error = TRUE}
-# Your code here
+#### Solution
+```{r, error = TRUE, fig.align='center', out.width='75%'}
+baseballModel = lm(attendance~wins, data = MLBattend)
+summary(baseballModel)
+plot(attendance~wins, data = MLBattend)
+abline(baseballModel)
 ```
+Predicted increase in attendance if a team that won 80 games last year wins 90 this year?
+```{r}
+prediction80Wins = predict(baseballModel, data.frame(wins = c(80)))
+prediction80Wins
+
+prediction90Wins = predict(baseballModel, data.frame(wins = c(90)))
+prediction90Wins
+
+#Increase in attendance:
+prediction90Wins - prediction80Wins
+```
+We predict 1,809,451 people to attend the game of a team with 80 wins, and 2,082,903 people to attend the game of a team with 90 wins, which is an increase of roughly 273,452 people.
+</br>
+
+```{r, error = TRUE, fig.align='center', out.width='75%'}
+baseballModel = lm(attendance~losses, data = MLBattend)
+summary(baseballModel)
+plot(attendance~losses, data = MLBattend)
+abline(baseballModel)
+```
+While we saw a positive correlation between game attendance and wins, there is a negative correlation between game attendance and losses, although the slope of the linear model is less steep and the $R^2$ value is smaller compared to attendance vs wins.
+</br>
 
 # Problem 3 (Verzani problem 11.3)
 
@@ -129,9 +158,21 @@ Group       |    |    |    |    |    |    |    |    |
 Age 2 (in.) | 39 | 30 | 32 | 34 | 35 | 36 | 36 | 30 |
 Adult (in.) | 71 | 63 | 63 | 67 | 68 | 68 | 70 | 64 |
 
-```{r, error = TRUE}
-# Your code here
+```{r, error = TRUE, fig.align='center', out.width='75%'}
+heights = data.frame(baby = c(39,30,32,34,35,36,36,30),
+                     adult = c(71,63,63,67,68,68,70,64))
+
+heightModel = lm(adult~baby, data = heights)
+summary(heightModel)
+
+plot(adult~baby, data = heights, xlab = "Height When 2 Years Old (in)", ylab = "Hight When Adult (in)")
+abline(heightModel)
 ```
+```{r}
+predict(heightModel, data.frame(baby = 33))
+```
+The predicted adult height of a 33 inch tall baby is 65.8 inches.
+</br>
 
 # Problem 4 (Verzani problem 11.4)
 
@@ -141,9 +182,15 @@ linear model for a child's height modeled by his parent's height. Make a
 scatterplot with a regression line. (Is this data set a good candidate for using
 `jitter()`?) What is the value of $\hat{\beta}_1$, and why is this of interest?*
 
-```{r, error = TRUE}
-# Your code here
+```{r, error = TRUE, fig.align='center', out.width='75%'}
+galtonModel = lm(child~parent, data = galton)
+summary(galtonModel)
+
+plot(jitter(child, 2)~jitter(parent, 2), data = galton, xlab = "Midparent Height (in)", ylab = "Child Height (in)")
+abline(galtonModel)
 ```
+The value of $\hat{\beta}_1$ is 0.64629. This is interesting because in a "perfect world" we might expect this value to be 1, meaning the height of the child would match the height of the parents. However, because $\hat{\beta}_1$ is less than 1, the expected height of a child with, for example, midparent height of 70 inches will actually be less than 70 inches.
+</br>
 
 # Problem 5 (Verzani problem 11.5)
 
@@ -171,7 +218,12 @@ large differences from the mean are lessened in their prediction for $y$.*
 and `child`, and then model the height of the child by the height of the parent.
 What are the estimates for $r$ and $\beta_1$.*
 
-```{r, error = TRUE}
-# Your code here
+```{r, error = TRUE, fig.align='center', out.width='75%'}
+scaledModel = lm(scale(child)~scale(parent), data = galton)
+summary(scaledModel)
+
+plot(scale(child)~scale(parent), data = galton)
 ```
+Estimate for $r$: 0.4588 </br>
+Estimate for $\beta_1$: 0.4588
 
