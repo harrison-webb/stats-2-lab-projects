@@ -1,0 +1,177 @@
+---
+title: "Lab 6 Notes"
+output: html_notebook
+---
+
+#### Simple Linear Regression Inference and Diagnostics
+
+Topics:
+-Residual Properties
+-Model Inference
+-T tests
+-Confidence INtervals
+
+
+#### Residual Properties
+
+Used to determine if we meet the assumptions on residuals
+```{r}
+fit = lm(Sepal.Length~Sepal.Width, data = iris, subset = Species=="setosa")
+summary(fit)
+
+par(mfrow = c(2,2))
+plot(fit)
+```
+-Residual Vs Fitted: Cloudy shape and a straight/flat line
+-QQ: want to fit the diagonal line to check for normality
+-Scale-Location: Cloudy shape and a straight/flat line
+-Leverage Plot: Influential points. Measured by cook's distance. Points outside of cook's distance chave a strong influence, leaving them out may result in a different estimate
+
+
+```{r}
+library(UsingR)
+fit2 = lm(HR~AB, data = batting)
+par(mfrow = c(2,2))
+plot(fit2)
+```
+We do not like "trumpet' shaped plots.
+</br>
+
+#### Model Inference
+Testing hypotheses on model parameters
+
+Coefficient Standard Errors:
+```{r}
+summary(fit)
+vcov(fit) #Gives variance-covariance matrix
+sqrt(vcov(fit)) #Taking square root of diagonals gives standard errors
+```
+
+We can convert to correlations if we wish:
+```{r}
+cov2cor(vcov(fit))
+```
+High values mean that the intercept and the slope are highly negatively correlated
+
+Function for getting standard errors
+```{r}
+coef_stdErrors = function(...){
+   sqrt(diag(vcov(...)))
+}
+```
+
+</br>
+
+#### T tests
+We can do t tests on model coefficients.
+That is,
+
+$$H_0: \beta_j = \beta_{j0}$$
+and
+
+$$H_A: \begin{cases}
+\beta_j < \beta_{j0}\\
+\beta_j \neq \beta_{j0}\\
+\beta_j > \beta_{j0}
+\end{cases}$$
+
+
+Assume that the standard errors $\epsilon_i$ in the regression model are i.i.d and Normally distributed with mean zero. Then we can decide between $H_0$ and $H_A$ using the t-statistic:
+$$t = \frac{\hat{\beta_j} - \beta_{k0}}{SE(\hat{\beta_j})}$$
+Function for t-statistics:
+```{r}
+coef_tstat = function(fit, beta0=0){ #Defualt beta0 value is zero
+   se = coef_stdErrors(fit)
+   beta = coef(fit)
+   (beta - beta0) / se
+}
+
+coef_tstat(fit)
+```
+
+Function to compute degrees of freedom:
+```{r}
+deg_free = function(fit){
+   n = length(resid(fit))
+   k = length(coef(fit))
+   n - k
+}
+
+deg_free(fit)
+```
+
+Find p-values using pt function
+```{r}
+pt(coef_tstat(fit, beta0 = 0)[1], df = deg_free(fit), lower.tail = FALSE)
+```
+
+
+#### Confidence Intervals
+##### Margial CIs, use the regular formula:
+In mean models we compute CIs for the mean. We would like to compute CIs for the population model coeffiecients as well. However, since were estimating multiple parameters we must take a slightly different approach
+
+We could just consider an interval for each $\beta_j$ without converning ourselves with the values of other coefficients. If we wanted a CI for just $\beta_j$ we could just use $$\hat{\beta_j} \pm t*SE(\hat{\beta_j})$$, with t* being the corresponding critical value fro a t dist with n-k-1 degrees of freedom.
+
+#####Confidence Ellipses
+Just looking at each $\beta_j$ individually does not give us the whole picture because they can depend on eachother. What we can do instead is consider the beta's together to get a *confidence ellipse*.
+```{r}
+install.packages(ellipse)
+```
+</br>
+
+#### $R^2$
+can extract from model simply with
+```{r}
+summary(fit)$r.squared
+```
+R^2 is .55 which tells us we are explaining ~55% of the data with our linear model
+
+Adjusted R^2 penalizes for more predictors.
+
+
+</br>
+
+#### F-Test
+used to determine if additional coefficients 'add value' to the model.
+```{r}
+summary(fit)$fstatistic
+```
+
+```{r}
+#Function for getting p value of the f statistic
+ftest_pval = function(fit){
+   f = summary(fit)$fstatistic
+   pf(f[["value"]], df1 = f[["numdf"]], df2 = f[["dendf"]], lower.tail = FALSE)
+}
+
+ftest_pval(fit)
+```
+</br>
+
+#### Point-Wise Inference
+-What is the expected value of Y given X? That is, what is the conditional mean of Y when X = x?
+-If we know X = x, what are the plausible values of Y?
+
+We can use the predict() function on a lm object
+
+```{r}
+predict_func = function(fit){
+   response = names(fit$model)[[1]]
+   explanatory = names(fit$model)[[2]]
+   function(x, ...){
+      dat = data.frame(x)
+      names(dat) = explanatory
+      predict(fit, dat, ...)
+   }
+}
+
+sepal_line = predict_func(fit)
+sepal_line(2:4)
+
+#can get CIs too
+sepal_line(2:4, interval = "confidence", level = 0.99)
+```
+
+
+
+

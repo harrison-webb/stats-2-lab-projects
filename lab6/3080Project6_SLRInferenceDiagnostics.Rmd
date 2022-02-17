@@ -1,0 +1,90 @@
+---
+title: "MATH 3080 Lab Project 6"
+author: "Your Name Here"
+date: "12/27/2019"
+output:
+  pdf_document:
+    toc: TRUE
+---
+
+# Problem 1 (Verzani problem 10.7)
+
+*The more beer you drink, the more your blood alcohol level (BAL) rises. The
+table below contains a data sete on beer consumption. Make a scatterplot with a
+regression line and 95% prediction intervals drawn. Test the hypothesis that one
+beer raises your BAL by 0.02% against the alternative that it raises it less.*
+
+| beers |   5  |   2  |   9  |   8  |   3  |   7   |   3  |   5  |   3  |   5  |
+|-------|------|------|------|------|------|-------|------|------|------|------|
+| BAL   | 0.10 | 0.03 | 0.19 | 0.12 | 0.04 | 0.095 | 0.07 | 0.06 | 0.02 | 0.05 |
+
+```{r, error = TRUE}
+# Your code here
+```
+
+# Problem 2 (Verzani problem 10.11)
+
+*For the `homedata` (**UsingR**) data set, find the regression equation to
+predict the year-2000 value of a home from its year-1970 value. Make a
+prediction for an \$80,000 home in 1970. Comment on the appropriateness of the
+regression model by investigating the residuals.*
+
+```{r, error = TRUE}
+# Your code here
+```
+
+# Problem 3 (Verzani problem 10.13)
+
+*The `alaska.pipeline` (**UsingR**) data set contains measurements of defects on
+the Alaska pipeline that are taken first in the field and then in the
+laboratory. The measurements are done in six batches. Fit a linear model for the
+lab-defect size as modeled by the field-defect size. Find the coefficients.
+Discuss the appropriateness of the model.*
+
+```{r, error = TRUE}
+# Your code here
+```
+
+# Problem 4 (Verzani problem 10.15)
+
+*The `galton` (**UsingR**) data set contains data collected by Francis Galton in
+1885 concerning the influence a parent's height has on a child's height. Fit a
+linear model modeling a child's height by his parents'. Do a test of
+significance to see whether $\beta_1$ equals 1 against a two-sided alternative.*
+
+```{r, error = TRUE}
+# Your code here
+```
+
+# Problem 5 (Verzani problem 10.17)
+
+*The `alaska.pipeline` (**UsingR**) data set appears appropriate for a linear
+model, but the assumption of equal variances does not seem appropriate. A
+log-transformation of each variable does seem to have equal variances. Fit the
+model*
+
+$$\log(\texttt{lab.defect}) = \beta_0 + \beta_1 \log(\texttt{field.defect}) +
+\epsilon.$$
+
+*Investigate the residuals and determine whether the assumption of equal
+variance seems appropriate.*
+
+```{r, error = TRUE}
+# Your code here
+```
+
+# Problem 6 (Verzani problem 10.19)
+
+*In a simple linear regression, confidence intervals for $\beta_0$ and $\beta_1$
+are given separately in terms of the $t$-distribution as $\hat{\beta}_i \pm t^*
+\text{SE}(\hat{\beta}_i)$. They can also be found* jointly, *giving a
+**confidence ellipse** for the parameters as a pair. This can be found easily in
+R with the **ellipse** package. If `res` is the result of the `lm()` function,
+then `plot(ellipse(res), type = "l")` will draw the confidence ellipse.*
+
+*For the `deflection` (**UsingR**) data set, find the confidence ellipse for
+`Deflection` modeled by `Load`.*
+
+```{r, error = TRUE}
+# Your code here
+```
