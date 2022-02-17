@@ -158,6 +158,7 @@ Group       |    |    |    |    |    |    |    |    |
 Age 2 (in.) | 39 | 30 | 32 | 34 | 35 | 36 | 36 | 30 |
 Adult (in.) | 71 | 63 | 63 | 67 | 68 | 68 | 70 | 64 |
 
+#### Solution
 ```{r, error = TRUE, fig.align='center', out.width='75%'}
 heights = data.frame(baby = c(39,30,32,34,35,36,36,30),
                      adult = c(71,63,63,67,68,68,70,64))
@@ -182,6 +183,7 @@ linear model for a child's height modeled by his parent's height. Make a
 scatterplot with a regression line. (Is this data set a good candidate for using
 `jitter()`?) What is the value of $\hat{\beta}_1$, and why is this of interest?*
 
+#### Solution
 ```{r, error = TRUE, fig.align='center', out.width='75%'}
 galtonModel = lm(child~parent, data = galton)
 summary(galtonModel)
@@ -218,6 +220,7 @@ large differences from the mean are lessened in their prediction for $y$.*
 and `child`, and then model the height of the child by the height of the parent.
 What are the estimates for $r$ and $\beta_1$.*
 
+#### Solution
 ```{r, error = TRUE, fig.align='center', out.width='75%'}
 scaledModel = lm(scale(child)~scale(parent), data = galton)
 summary(scaledModel)
