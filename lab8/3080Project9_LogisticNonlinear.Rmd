@@ -1,5 +1,5 @@
 ---
-title: "MATH 3080 Lab Project 9"
+title: "Lab Project 9"
 author: "Harrison Webb"
 date: "03/17/2022"
 output:
