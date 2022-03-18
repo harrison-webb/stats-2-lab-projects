@@ -1,0 +1,62 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Logistic Regression
+Use when the response is Bernoulli (yes/no or true/false or 0/1)
+
+$g(x) = \frac{e^x}{1+e^x}$
+
+implement using function glm()
+Very similar to lm()
+
+Example: Predict probability that iris is versicolor, given it's dimensions
+```{r}
+fit <- glm(I(Species == "versicolor") ~ Sepal.Length + Sepal.Width + 
+       Petal.Length + Petal.Width,
+    family = binomial, data = iris) #use binomial for logistic models
+summary(fit)
+```
+Differences in interpretation:
+Increase in x gives $e^{\beta_j}$ increase in odds
+
+Most functions from lm carry over:
+summary, coef, predict
+
+```{r}
+exp(coef(fit))
+```
+
+# Nonlinear Regression
+use nls() function
+
+```{r}
+#par(mfrow = c(1,2))
+plot(conc~time, data = Indometh, pch = 20)
+#plot(log(conc)~time, data = Indometh, pch = 20)
+```
+Must have some background idea of what the function looks like
+
+Step 1: Define the function
+```{r}
+doubleExp <- function(c0, a1, a2, b1, b2, t){
+   c0+a1*exp(-b1*t)+a2*exp(-b2*t)
+}
+
+#Step 2: Use nls
+#step 2b: create initial guesses for your parameters
+nlfit <- nls(conc~doubleExp(c0, a1, a2, b1, b2, time), data = Indometh, 
+    start = c(c0=0.125, a1=0.75, a2=1, b1=1.5, b2=1.1))
+summary(nlfit)
+
+curve(doubleExp(x, c0 = coef(nlfit)["c0"],
+                a1 = coef(nlfit)["a1"],
+                b1 = coef(nlfit)["b1"],
+                a2 = coef(nlfit)["a2"],
+                b2 = coef(nlfit)["b2"]),
+      from = 0, to = 8)
+points(conc~time, data = Indometh)
+```
+
+
