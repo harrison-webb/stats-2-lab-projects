@@ -18,7 +18,8 @@ beer raises your BAL by 0.02% against the alternative that it raises it less.*
 | beers |   5  |   2  |   9  |   8  |   3  |   7   |   3  |   5  |   3  |   5  |
 |-------|------|------|------|------|------|-------|------|------|------|------|
 | BAL   | 0.10 | 0.03 | 0.19 | 0.12 | 0.04 | 0.095 | 0.07 | 0.06 | 0.02 | 0.05 |
-```{r}
+
+```r
 #Functions by Julie Sherman
 
 predict_func <- function(fit) {
@@ -48,14 +49,22 @@ plot_fit <- function(fit, interval = "confidence", level = 0.95, len = 1000,
 }
 ```
 
-```{r, error = TRUE}
+
+```r
 df <- data.frame(beers = c(5,2,9,8,3,7,3,5,3,5), BAL = c(0.1, 0.03, 0.19, 0.12, 0.04, 0.095, 0.07, 0.06, 0.02, 0.05))
 model <- lm(BAL~beers, data = df)
 
 plot(df)
 abline(model)
+```
+
+![](3080Project6_SLRInferenceDiagnostics_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+```r
 plot_fit(model)
 ```
+
+![](3080Project6_SLRInferenceDiagnostics_files/figure-html/unnamed-chunk-2-2.png)<!-- -->
 
 # Problem 2 (Verzani problem 10.11)
 
@@ -64,7 +73,8 @@ predict the year-2000 value of a home from its year-1970 value. Make a
 prediction for an \$80,000 home in 1970. Comment on the appropriateness of the
 regression model by investigating the residuals.*
 
-```{r, error = TRUE}
+
+```r
 # Your code here
 ```
 
@@ -76,7 +86,8 @@ laboratory. The measurements are done in six batches. Fit a linear model for the
 lab-defect size as modeled by the field-defect size. Find the coefficients.
 Discuss the appropriateness of the model.*
 
-```{r, error = TRUE}
+
+```r
 # Your code here
 ```
 
@@ -87,7 +98,8 @@ Discuss the appropriateness of the model.*
 linear model modeling a child's height by his parents'. Do a test of
 significance to see whether $\beta_1$ equals 1 against a two-sided alternative.*
 
-```{r, error = TRUE}
+
+```r
 # Your code here
 ```
 
@@ -104,7 +116,8 @@ $$\log(\texttt{lab.defect}) = \beta_0 + \beta_1 \log(\texttt{field.defect}) +
 *Investigate the residuals and determine whether the assumption of equal
 variance seems appropriate.*
 
-```{r, error = TRUE}
+
+```r
 # Your code here
 ```
 
@@ -120,6 +133,7 @@ then `plot(ellipse(res), type = "l")` will draw the confidence ellipse.*
 *For the `deflection` (**UsingR**) data set, find the confidence ellipse for
 `Deflection` modeled by `Load`.*
 
-```{r, error = TRUE}
+
+```r
 # Your code here
 ```
