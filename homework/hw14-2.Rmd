@@ -1,0 +1,27 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+data <- matrix(c(28,17,7,31,26,10,26,19,11), ncol=3, byrow = TRUE)
+colnames(data) <- c("t mobile", "verizon", "ATT")
+rownames(data) <- c("gmail", "yahoo", "other")
+
+dataTable = as.table(data)
+
+dataTable
+
+chisq.test(dataTable)
+```
+
+```{r}
+births = c(7680, 48442, 7579, 47814, 7711, 47595, 7733, 48230)
+daysInPhase = c(24, 152, 24, 149, 24, 150, 24, 152)
+proportions = daysInPhase / sum(daysInPhase)
+
+chisq.test(births, p=proportions)
+```
+
+
+
