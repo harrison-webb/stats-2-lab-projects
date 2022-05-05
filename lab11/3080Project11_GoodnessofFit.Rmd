@@ -1,0 +1,145 @@
+---
+title: "MATH 3080 Lab Project 11"
+author: "Harrison Webb"
+date: "04/14/2022"
+output:
+  html_document:
+    toc: TRUE
+---
+
+# Problem 1 (Verzani problem 10.1)
+
+*A die is rolled 100 times and yields these frequencies*
+
+|       |  1 |  2 | 3 |  4 |  5 |  6 |
+|-------|----|----|---|----|----|----|
+| count | 13 | 17 | 9 | 17 | 18 | 26 |
+
+*Is this a fair die? Answer using a significance test with $H_0: p_i =
+\frac{1}{6}$ for each $i$, and $H_A: p_i \neq \frac{1}{6}$ for at least one
+$i$.*
+
+```{r, error = TRUE}
+rolls = c(13, 17, 9, 17, 18, 26)
+
+chisq.test(rolls) #testing for equal probability
+```
+With a p-value on 0.08483, we would not reject $H_0$ unless using an unusually large significance level of $\alpha = 0.1$, so we do not have sufficient evidence to believe that the dice is unfair.
+</br>
+
+# Problem 2 (Verzani problem 10.5)
+
+*A simple trick for determining what language a document is written in is to
+compare the letter distributions (e.g., the number of z's) to the known
+proportions for a language. For these proportions, we use the familiar letter
+frequencies given in the `frequencies` variable of the `scrabble` (**UsingR**)
+data set. These are an okay approximation to those in the English language.*
+
+*For simplicity (see `?scrabble` for more details), we focus on the vowel
+distribution of a paragraph from R's webpage appearing below. The counts and
+Scrabble frequencies are given in the table below.*
+
+|                    |  a |  e |  i |  o |  u |
+|--------------------|----|----|----|----|----|
+| Count              | 28 | 39 | 23 | 22 | 11 |
+| Scrabble frequency |  9 | 12 |  9 |  8 |  4 |
+
+> R is a language and environment for statistical computing and graphics. It is
+> a GNU project which is similar to the S language and environment which was
+> developed at Bell Laboratories (formerly AT&T, now Lucent Technologies) by
+> John Chambers and colleagues. R can be considered as a different
+> implementation of S. There are some important differences, but much code
+> written for S runs unaltered under R.
+
+*Perform a chi-squared goodness-of-fit test to see whether the distribution of
+vowels appears to be from English.*
+```{r, include=FALSE}
+library(UsingR)
+```
+
+```{r, error = TRUE}
+data("scrabble")
+
+paragraphLetterCounts = c(28, 39, 23, 22, 11)
+scrabbleLetterFrequency = c(9, 12, 9, 8, 4)
+
+chisq.test(paragraphLetterCounts, scrabbleLetterFrequency)
+```
+With a high p-value of 0.2412, we can reasonably say that the paragraph is in English.
+</br>
+
+# Problem 3 (Verzani problem 10.6)
+
+*The names of common stars are typically Greek or Arab in derivation. The
+`bright.stars` (**UsingR**) data set contains 96 names of common stars. Perform
+a significance test on the letter distribution to see whether they could be
+mistaken for English words.*
+
+*The letter distribution can be found with:*
+
+```{r, error = TRUE}
+library(UsingR)
+all.names <- paste(bright.stars$name, sep = "", collapse = "")
+x <- unlist(strsplit(tolower(all.names), ""))
+letter.dist <- sapply(letters, function(i) sum(x == i))
+```
+
+*The English-letter frequency is found using the `scrabble` (**UsingR**) data
+set with:*
+
+```{r}
+ps <- scrabble$frequency[1:26]
+ps <- ps / sum(ps)
+```
+
+```{r, error = TRUE}
+chisq.test(letter.dist, p=ps)
+```
+The extremely small p value of 2.2e-16 strongly indicates (correctly) that the star names are not in English, and don't share a letter distribution similar to English, so they likely would not be mistaken for English words.
+</br>
+
+# Problem 4 (Verzani problem 10.12)
+
+*The `airquality` data set contains measurements of air quality in New York
+City. We wish to see if ozone levels are independent of temperature. First we
+gather the data, using `complete.cases` to remove missing data from our data
+set.*
+
+```{r}
+aq <- airquality[complete.cases(airquality),]
+aq <- transform(aq,
+  te = cut(Temp, quantile(Temp)),
+  oz = cut(Ozone, quantile(Ozone))
+)
+xtabs(~ te + oz, data = aq)
+```
+
+*Perform a chi-squared test of independence on the two variables `te` and `oz`.
+Does the data support an assumption of independence?*
+
+```{r, error = TRUE}
+chisq.test(aq$te, aq$oz)
+```
+After performing the chi-squared test on the temperature data and ozone data, we get an extremely small p-value which indicates that temperature and ozone are **not** independent and there is likely an interaction between them.
+</br>
+
+# Problem 5 (Verzani problem 10.14)
+
+*The data set `oral.lesion` (**UsingR**) contains data on location of an oral
+lesion for three geographic locations. This data set appeared in an article by
+Mehta and Patel about differences in $p$-values in tests for independence when
+the exact or asymptotic distributions are used. Compare the $p$-values found by
+`chisq.test()` when the asymptotic distribution of the sampling distribution is
+used to find the $p$-value and when a simulated value is used. Are the
+$p$-values similar? If not, which do you think is more accurate? Why?*
+
+```{r, error = TRUE}
+data("oral.lesion")
+
+#using asymptotic distribution
+chisq.test(oral.lesion)
+
+#using simulated value, B = 2000
+chisq.test(oral.lesion, simulate.p.value = TRUE)
+```
+The asymptotic distribution gives a p-value of 0.14, but when we simulate the p-value with 2000 replicates we get p-value = 0.02749.
