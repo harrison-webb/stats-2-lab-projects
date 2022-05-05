@@ -1,0 +1,101 @@
+---
+title: "MATH 3080 Lab Project 8"
+author: "Harrison Webb"
+date: "03/30/2022"
+output:
+  html_document:
+    toc: TRUE
+---
+
+# Problem 1 (Verzani problem 12.28)
+
+*In the data set `mtcars` the variables `mpg`, `cyl`, and `am` indicate the
+miles per gallon, the number of cylinders, and the type of transmission,
+respectively. Perform a two-way ANOVA modeling `mpg` by the `cyl` and `am`, each
+treated as a categorical variable.*
+
+*Is there an indication of an interaction? Do both the number of cylinders and
+the type of transmission make a difference?*
+
+```{r, error = TRUE, fig.align='center', out.width='75%'}
+with(mtcars, interaction.plot(cyl, am, mpg))
+```
+</br>
+The interaction plot is not completely parallel, suggesting that an interaction may be happening, but there is no intersection, which would strongly suggest an interaction.
+
+```{r}
+model1 <- lm(mpg ~ as.factor(cyl) * as.factor(am), data = mtcars)
+summary(model1)
+```
+The F-statistic p-value here is extremely small, so we can say with near-certainty that at least one treatment has an effect on the response variable (mpg). We see that the treatments with a statistically significant effect are having 8 cylinders (negative relationship with mpg) and having an automatic transmission (positive relationship with mpg).
+</br>
+
+# Problem 2 (Verzani problem 12.29)
+
+*The data set `ToothGrowth` has measurements of tooth growth (`len`) of guinea
+pigs for different dosages of Vitamin C (`dose`) and two different delivery
+methods (`supp`).*
+
+*Perform a two-way analysis of variance of tooth growth modeled by dosage and
+delivery method. First, fit the full model including interactions and use the
+$F$-test to compare this with the additive model.*
+
+First lets make an interaction plot
+```{r, error = TRUE, fig.align='center', out.width='75%'}
+with(ToothGrowth, interaction.plot(dose, supp, len))
+```
+At doses 0.5 and 1 the plots appear parallel, but there is an intersection at dose = 2, which suggests at least some interaction.
+
+```{r}
+toothGrowthWithInteraction <- lm(len ~ supp * as.factor(dose), data = ToothGrowth)
+toothGrowthNoInteraction <- lm(len ~ supp + as.factor(dose), data = ToothGrowth)
+
+anova(toothGrowthNoInteraction, toothGrowthWithInteraction)
+```
+Our p value is significant at alpha = 0.05, so it appears there are interactions.
+</br>
+
+# Problem 3 (Verzani problem 12.30)
+
+*The data set `OrchardSprays` contains measurements on the effectiveness of
+various sprays on repelling honeybees. The variable `decrease` measures
+effectiveness of the spray, `treatment` records the type of treatment, and
+`rowpos` records the row in the field the measurement comes from.*
+
+*Make an interaction plot of the mean of `decrease` with `treatment` as a trace
+factor. Then fit the additive analysis-of-variance model and the model with
+interaction. Compare the two models using `anova`. Is the interaction model
+suggested by the results of the modeling?*
+
+```{r, error = TRUE}
+# Your code here
+```
+
+# Problem 4 (Verzani problem 12.31)
+
+*What does R output when there is not enough data to estimate the parameters and
+an error term? We check with a simple example. In checking a comment that
+everything is better with butter on it, a student asks four people to rate the
+four combinations of bread and corn with and without butter. The data collected
+is:*
+
+```{r}
+d <- data.frame(
+  rating = c(8, 6, 8, 4),
+  food = gl(2, 2, 4, labels = c("bread", "corn")),
+  butter = gl(2, 1, 4, labels = c("yes", "no"))
+)
+xtabs(rating ~ butter + food, d)
+with(d, interaction.plot(butter, food, rating))
+```
+
+*Look at the summary of the multiplicative model*
+
+```{r}
+summary(lm(rating ~ butter * food, d))
+```
+
+*Do the coefficients get estimated? What is the issue then?*
+
+**YOUR COMMENTS HERE**
+
