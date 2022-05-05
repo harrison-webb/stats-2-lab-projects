@@ -1,0 +1,153 @@
+---
+title: "Lab 7 Notes"
+output: html_notebook
+---
+
+```{r}
+#By julie sherman
+library(ellipse)
+plot_conf_ellipse <- function(..., col = 1, add = FALSE) {
+  if (add) {
+    pfunc = lines
+  } else {
+    pfunc = plot
+  }
+  pfunc(ellipse(...), type = "l", col = col)
+}
+
+```
+
+#### Multiple Regeression and Polynomial Regression
+
+```{r}
+head(mtcars)
+
+#Add more regressors with the +
+fit <- lm(mpg~disp+hp, data = mtcars)
+summary(fit)
+```
+Can add indicator variables: takes the values 0 or 1 to indicate presence or absence. Careful with the interpretation.
+
+```{r}
+fit2 <- lm(mpg~disp+hp+am, data = mtcars)
+summary(fit2)
+```
+By adding an extra variable, it changed the significance of others. 
+Reasons:
+   -Omitted Variable bias
+   -Multi-colinearity
+   -irrelevance
+   
+We want to assess what is the best model, what predictors should be included
+
+
+#### INteractions
+use the *
+```{r}
+fit3 <- lm(mpg~disp+hp+am+cyl*vs, data = mtcars)
+summary(fit3)
+```
+
+If we want literal multiplication, use I()
+```{r}
+fitmult <- lm(mpg~disp+hp+am+I(cyl*vs), data= mtcars)
+summary(fitmult)
+```
+
+
+####Categorical Variables
+use as.factor() for variables with discrete groups
+allows non-linear effects of cylinders
+```{r}
+fit4 <- lm(mpg~disp+hp+am+as.factor(cyl), data = mtcars)
+summary(fit4)
+```
+
+
+#### Inference and Model Selection
+
+##### F-Test:
+Tests if the 'extra' coefficients are zero
+```{r}
+anova(fit, fit4)
+```
+P value is small, so probably at least one is nonzero
+
+Added a significant variable, but is the model really better?
+
+
+
+##### Confidence Intervals:
+ellipsoids - look at two at a time
+```{r}
+vcov(fit4)
+```
+
+
+##### AIC
+Which model is best?
+Consider:
+   -Fit -> how well does it explain the data? Have looked at R^2 previously
+   -Number of predictors. Have looked at adjusted R^2 previously
+   
+AIC is basically a better adjusted R^2
+
+Big Idea: Lower AIC score is better
+Numbers dont really mean anything, depends on model
+
+```{r}
+AIC(fit)
+AIC(fit4)
+```
+
+See notes for finding model with lowest AIC
+
+AIC is an asymptotic method - works best with large samples
+Don't just fit models mindlessly and choose the one with lowest AIC
+
+
+#### Polynomial Regression
+```{r}
+#Making our data
+x <- seq(-1,1, length = 100)
+y <- x - x^3 + rnorm(100, sd = 0.1)
+plot(x,y,pch=20)
+```
+```{r}
+fit <- lm(y~x)
+plot(y~x)
+abline(fit)
+plot(fit)
+
+```
+pretty bad results if we just use a linear model
+
+
+```{r}
+#by julie sherman
+predict_func <- function(fit) {
+  response <- names(fit$model)[[1]]
+  explanatory <- names(fit$model)[[2]]
+  function(x, ...) {
+    dat <- data.frame(x)
+    names(dat) <- explanatory
+    predict(fit, dat, ...)
+  }
+}
+```
+
+```{r}
+predict_fit2 <- predict_func(fit2)
+lines(x, predict_fit2)
+
+fit3 <- lm(y~x + I(x^2) + I(x^3))
+summary(fit3)
+
+```
+
+
+
+
+
+
+

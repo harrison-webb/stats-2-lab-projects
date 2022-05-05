@@ -1,0 +1,158 @@
+---
+title: "MATH 3080 Lab Project 7"
+author: "Harrison Webb"
+date: "02/27/2022"
+output:
+  html_document:
+    toc: TRUE
+    keep_md: TRUE
+---
+
+```{r}
+#by julie sherman
+predict_func <- function(fit) {
+  response <- names(fit$model)[[1]]
+  explanatory <- names(fit$model)[[2]]
+  function(x, ...) {
+    dat <- data.frame(x)
+    names(dat) <- explanatory
+    predict(fit, dat, ...)
+  }
+}
+
+min_aic_model <- function(...) {
+  models <- list(...)
+  aic_list <- sapply(models, AIC)
+  best_model <- models[[which.min(aic_list)]]
+  best_model
+}
+```
+
+# Problem 1 (Verzani problem 11.22)
+
+*For the data set `trees`, model the `Volume` by the `Girth` and `Height`
+variables. Does the model fit the data well?*
+
+```{r, include=FALSE}
+library(rgl)
+library(UsingR)
+library(MASS)
+```
+
+
+```{r, error = TRUE}
+treeModel <- lm(Volume~Girth + Height, data = trees)
+summary(treeModel)
+```
+3D Plot of the data for fun
+```{r, fig.align='center', out.width='75%'}
+
+plot3d(Volume~Girth + Height, data = trees)
+rglwidget()
+```
+
+From the linear model, we see that the girth coefficient has an extremely small p-value and the height coefficient has a p value that is still significant at $\alpha < 0.05$ but is not nearly as small as the former. This indicates that both coefficients are useful. Additionally, we see that $\text{Adjusted }R^2 = 0.9442$, which indicates a good fit of the model to the data.
+</br>
+
+# Problem 2 (Verzani problem 11.24)
+
+*For the `deflection` (**UsingR**) data set, fit the quadratic model*
+
+$$\text{Deflection} = \beta_0 + \beta_1 \text{Load} + \beta_2 \text{Load}^2 +
+\epsilon.$$
+
+*How well does this model fit the data? Compare to the linear model.*
+
+```{r, error = TRUE, fig.align='center', out.width='75%'}
+data(deflection)
+
+par(mfrow = c(1, 2))
+
+deflectionModel <- lm(Deflection~Load + I(Load^2), data = deflection)
+deflection_func <- predict_func(deflectionModel)
+summary(deflectionModel)
+
+deflectionModelLinear <- lm(Deflection~Load, data = deflection)
+
+plot(Deflection~Load, data = deflection, main = "Quadratic Model")
+lines(deflection$Load, deflection_func(deflection$Load))
+
+plot(Deflection~Load, data = deflection, main = "Linear Model")
+abline(deflectionModelLinear)
+
+anova(deflectionModelLinear, deflectionModel)
+```
+Though both the linear and quadratic models give great fits, the data is clearly linear, so that model would be most appropriate. (in fact, the data is suspiciously linear, I almost feel like I have an error somewhere and am not plotting the right stuff??)
+
+# Problem 3 (Verzani problem 11.25)
+
+*The data set `kid.weights` contains age, weight, and height measurements for
+several children. Fit the linear model*
+
+$$\text{weight} = \beta_0 + \beta_1 \text{age} + \beta_2 \text{height} + \beta_3
+\text{height}^2 + \beta_4 \text{height}^3 + \beta_5 \text{height}^4$$
+
+*Use the partial $F$-test to select between this model and the nested models
+found by using only first-, second-, and third-degree polynomials for `height`.*
+
+```{r, error = TRUE}
+weightsModel4 = lm(weight ~ age + height + I(height^2) + I(height^3) + I(height^4), data = kid.weights)
+weightsModel3 = lm(weight ~ age + height + I(height^2) + I(height^3), data = kid.weights)
+weightsModel2 = lm(weight ~ age + height + I(height^2), data = kid.weights)
+weightsModel1 = lm(weight ~ age + height, data = kid.weights)
+
+anova(weightsModel1, weightsModel2, weightsModel3, weightsModel4)
+```
+All F tests are statistically significant, so we can say that the full model is the best choice of model out of all 4.
+
+# Problem 4 (Verzani problem 11.27)
+
+*The data set `Cars93` (**MASS**) contains data on cars sold in the United
+States in the year 1993. Fit a regression model with `MPG.city` modeled by the
+numeric variables `EngineSize`, `Weight`, `Passengers`, and `Price`. Which
+variables are marked as statistically significant by the marginal $t$-tests?
+Which model is selected by the AIC?*
+
+```{r, error = TRUE}
+# Your code here
+```
+
+# Problem 5 (Verzani problem 11.29)
+
+*The data set `baycheck` (**UsingR**) contains estimated populations for a
+variety of Bay Checkerspot butterflies near California. A common model for
+population dynamics is the Ricker model, for which $t$ is time in years:
+
+$$N_{t + 1} = aN_t e^{bN_t} W_t,$$
+
+*where $a$ and $b$ are parameters and $W_t$ is a lognormal multiplicative error.
+This can be turned into a regression model by dividing by $N_t$ and then taking
+logs of both sides to give*
+
+$$\log\left(\frac{N_{t + 1}}{N_t}\right) = \log(a) + b N_t + \epsilon_t.$$
+
+*Let $y_t$ be the left-hand side. This may be written as*
+
+$$y_t = r\left(1 - \frac{N_t}{K}\right) + \epsilon_t,$$
+
+*because $r$ can be interpreted as an unconstrained growth rate and $K$ as a
+carrying capacity.*
+
+*Fit the model to the `baycheck` data set and find values for $r$ and $K$. To
+find $y_t$ you can do the following:*
+
+```{r, error = TRUE}
+d <- with(baycheck, {
+  n <- length(year)
+  yt <- log(Nt[-1]/Nt[-n])
+  nt <- Nt[-n]
+  data.frame(yt, nt)
+})
+```
+
+*Recall that a negative index means all but that index.*
+
+```{r, error = TRUE}
+# Your code here
+```
+

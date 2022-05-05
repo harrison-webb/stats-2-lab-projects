@@ -1,0 +1,287 @@
+---
+title: "3080 Lecture 7"
+author: "Julie Sherman"
+date: "1/6/2022"
+output: 
+  html_document:
+    toc: TRUE
+---
+
+# Lecture 7
+## Multiple Linear Regression
+My presentation up to now has been focused on the simple linear model but has suggested the possibility of multiple explanatory variables. In fact regression with multiple variables is technically not much different from simple linear regression. Much of what we’ve said transfers over, though the issues of model selection become more interesting.
+
+### Estimation
+Estimating a model with multiple explanatory variables is easy; just add those variables into the model.
+
+Let’s for example study the data set `mtcars` and examine the influence of variables on the miles per gallon of a vehicle.
+```{r}
+head(mtcars)
+
+fit <- lm(mpg ~ disp + hp, data = mtcars)
+summary(fit)
+```
+
+```{r}
+library(stargazer)
+stargazer(fit, type = "text")
+```
+In statistics, a variable that takes the values of either 0 or 1 depending on whether a condition is true or not is called a **dummy variable** or **indicator variable**. In the `mtcars` data set, the variables `vs` and `am` are indicator variables tracking the shape of the engine of a car and whether a car has an automatic transmission, respectively. These variables are already conveniently encoded as 0/1 variables.
+```{r}
+fit2 <- lm(mpg ~ disp + hp + am, data = mtcars)
+stargazer(fit2, type = "text")
+```
+
+Oh, look at that! Our original model saved in `fit` had a statistically significant coefficient for `disp` but that’s not the case for `fit2.` We will need to look into this. It’s possible that the reason why this occured is because the original model suffered from **omitted variable bias (OMB)**, where two potential regressors were correlated with each other but only one of them had a meaningful effect on the response variable. But perhaps the issue instead is that the new model suffers from **multicollinearity**, which means that there is a strong linear relationship between two variables; in the case of **perfect multicollinearity**, where one regressor is *exactly* a linear combination of the other variables (that is, we could say that some variables $z_1,\dots z_p$ satisfy  $z_1=b_1+b_2z_2+\cdots+b_pz_p$ for some coefficients  $b_1,\dots b_p$), the model cannot be estimated at all (though often software detects this and simply removes variables until the perfect multicollinearity is gone). A consequence of multicollinearity is large standard errors in model coefficients, which makes precise estimation and inference difficult. One can understand the phenomenon as struggling to distinguish the effects of two variables that are strongly related to each other. A third possibility is that one of these variables are **irrelevant** and increase the standard errors of the other coefficient estimates in the model. Here either omitted variable bias or multicollinearity are likely producing these results, and we would need to decide between them. (I’m inclined to believe the issue is OMB: `am` was an omitted variable and `disp` actually might not belong in the model.)
+
+Suppose we want to account for the cylinders in our model, along with the shape of the engine. We could include `cyl` and `vs` as variables. Additionally, we could allow for an interaction between the variables by multiplying `cyl` with `vs.` The resulting model is estimated below:
+
+```{r}
+fit3 <- lm(mpg ~ disp + hp + am + cyl * vs, data = mtcars)
+stargazer(fit3, type = "text")
+```
+You probably have noticed that `+` in a formula does not mean literal additiona, and `*` does not mean literal multiplication. Both operators have been overloaded in the context of formulas. The effect of `*` here is to include terms in the model for both the variables `cyl` and `vs` separately and a term representing the product of these two variables. If we wanted *literal* multiplication in the model, we would have to encapsulate that multiplication with the `I()` function. The model below is equivalent to fit3.
+
+```{r}
+stargazer(lm(mpg ~ disp + hp + am + cyl + vs + I(cyl * vs), data = mtcars),
+          type = "text")
+```
+
+Perhaps we should incorporate cylinders in a different way, though; perhaps cylinders should be treated as categorical variables. This could allow for non-linear effects in the number of cylinders. We could force cylinders to be treated as categorical variables by passing them as factors to the model, like so (note that if the variable `cyl` was already a factor variable, `as.factor()` would not be needed):
+
+```{r}
+fit4 <- lm(mpg ~ disp + hp + am + as.factor(cyl), data = mtcars)
+stargazer(fit4, type = "text")
+```
+
+Linear models handle categorical variables by producing a dummy variable for the possible values of the categorical variable. Specifically, all categories but one get a dummy variable that indicates whether the observation was in that category or not. One category is omitted because otherwise the dummy variables would become collinear with the intercept term; the group that does not get a dummy variable become the **baseline** group. This is because the coefficients of the other variables are effectively contrasts with the mean of the baseline group. This follows from the interpretation of the coefficients of dummy variables: they are the change in expected value when that variable is true or not. If we did not want a baseline group, we would need to suppress the constant; then all groups in the categorical variable will get a dummy variable.
+```{r}
+stargazer(lm(mpg ~ disp + hp + am + as.factor(cyl) - 1, data = mtcars),
+          type = "text")
+```
+
+The coefficients of the factor variables in the new model can be interpreted as the mean MPG for each count of cylinders, without yet accounting for the effects of the other variables in the model.
+
+### Inference and Model Selection
+All the statistical procedures discussed with simple linear regression apply in the multivariate setting, including the diagnostic tools, but some issues should be updated.
+
+First, regarding the $F$-test. The  $F$-test as described before still works as marketed, but we can make additional  $F$ tests to help decide between models. For instance, we could decide between
+$$H_0: \beta_{k^*}=\beta_{k^*+1}=\cdots=\beta_{k}=0$$
+and
+$$H_A: H_0\text{ is false}$$
+for some  $k^∗\geq 1$. In other words, we can test whether a collection of new regressors have predictive power when added to a smaller linear model.
+
+We may, for example, want to test whether any of the coefficients in `fit4` are non-zero, comparing against the model contained in `fit.` To perform this test, we should use the `anova()` function (another function that can perform `anova()`) like so:
+
+```{r}
+anova(fit, fit4)
+```
+The results of the above test suggest that some of the coefficients in the model `fit4` are not zero; one should necessarily conclude that `fit4` is a better model than `fit`, since `fit` is missing important variables.
+
+Next, let’s consider the issue of confidence intervals. `vcov()` still works.
+
+```{r}
+vcov(fit4)
+cov2cor(vcov(fit4))
+```
+Again, the confidence region is an elliptical space, but this time in  $k+1$ dimensional space, rather than two-dimensional space. Attempting to visualize high-dimensional space directly is known to induce madness, so we may be better off looking at pairs of relationships between coefficients. We can do so by telling the `ellipse()` function we saw earlier which variables we wish to visualize.
+
+```{r}
+library(ellipse)
+plot_conf_ellipse <- function(..., col = 1, add = FALSE) {
+  if (add) {
+    pfunc = lines
+  } else {
+    pfunc = plot
+  }
+  pfunc(ellipse(...), type = "l", col = col)
+}
+
+plot_conf_ellipse(fit4, which = c("(Intercept)", "disp"))
+
+
+plot_conf_ellipse(fit4, which = c("disp", "am"))
+```
+
+Suppose we wish to predict values from our model, maybe also get point-wise confidence intervals or prediction intervals. We will need to use the `predict()` function as we did before. For what it’s worth, `predict()` works exactly the same; it needs to be fed a `data.frame` containing the new values of the model’s regressors, in a format imitating the original data. (You don’t need to manually create automatically generated dummy variables, for example, or insert columns for interaction variables.) Visualizing the predictions, though, will be more difficult due to the multivariate setting. (In general, if you want to learn more about multivariate visualization techniques, consider taking a class dedicated to visualization.)
+
+While `predict()` has not changed, my function `predict_func()` should be adapted to the new setting.
+```{r}
+predict_func_multivar <- function(fit) {
+  function(..., interval = "none", level = 0.95) {
+    dat <- data.frame(...)
+    predict(fit, dat, interval = interval, level = level)
+  }
+}
+
+mtcar_pf <- predict_func_multivar(fit2)
+mtcar_pf(disp = c(160, 150), hp = c(110, 80), am = c(0, 1))
+
+mtcar_pf(disp = c(160, 150), hp = c(110, 80), am = c(0, 1),
+         interval = "confidence")
+```
+Now let’s consider criteria for deciding between models. This is new to the multivariate context; in simple linear regression there’s no interesting model selection discussion to be had. But for multivariate models, we have to decide which coefficients to include or exclude and in what functional form they should appear. At first one may think that one should check the statistical significance of model coefficients and $F$-tests and use those results to decide what model is most appropriate for the data. This approach is mistaken. First, it’s path-dependent; if we choose a different sequence of models to check we may end up with different end results for coefficients. It also doesn’t inform us well regarding how we should handle changing test results as we insert and delete coefficients; coefficients that once weren’t significant could become significant after inserting or deleting another regressor, or vice versa. Secondly, this is multiple hypothesis testing; the hypothesis tests start to lose their statistical guarantees as we test repeatedly.
+
+Okay, how about checking the value of $R^2$ or adjusted  $R^2$? While we should be sensitive to the value of  $R^2$, we must use it with great caution. Perfectly valid and acceptable statistical models have low $R^2$ models, and bad models can have high $R^2$ values. We have two competing concerns: **underfitting** and **overfitting.** Underfitting means our model has little predictive power and could be improved. Models that have been overfitted, though, have excellent predictive power *in the observed sample*, but say little about the general population and lose their predictive power when we feed them new, out-of-sample data. Attempting to maximize  $R^2$ can easily lead to overfitting, and thus should be avoided. However, a low $R^2$ *might* indicate underfitting.
+
+We need more tools for model selection. One useful tool is the **Akaike information criterion (AIC)**, a statistic intended to estimate the out-of-sample predictive power of a model. We can obtain the AIC for a particular model using the `AIC()` function.
+```{r}
+AIC(fit)
+```
+
+There is no universal interpretation of the AIC itself (at least not one that’s not heavily theoretical). The AIC should not be considered in isolation, though; instead, we compare the AIC statistics of competing candidate models, selecting the model that *minimizes* the AIC. We can even get a reasonable interpretation of AICs when comparing two. If we have  $AIC_1$ and $AIC_2$ for two different models, then we can interpret the quantity
+$$\exp((AIC_1−AIC_2)/2)$$
+ 
+
+as how many more times the model with  $AIC_2$  is likely to be true than the model with  $AIC_1$. The function below performs this kind of analysis:
+
+```{r}
+aic_compare <- function(fit1, fit2) {
+  exp((AIC(fit1) - AIC(fit2)) / 2)
+}
+
+aic_compare(fit, fit4)
+```
+
+That said, we are generally interested in just finding the model that minimizes the AIC among a class of similar models. The function below can find such a model, when given a list of models.
+
+```{r}
+min_aic_model <- function(...) {
+  models <- list(...)
+  aic_list <- sapply(models, AIC)
+  best_model <- models[[which.min(aic_list)]]
+  best_model
+}
+
+best_fit <- min_aic_model(fit, fit2, fit3, fit4)
+stargazer(best_fit, type = "text")
+
+sapply(list(fit, fit2, fit3, fit4), function(l) {aic_compare(best_fit, l)})
+```
+It seems that the fourth model seems to best describe the data. That said, some of the coefficients in the model are not statistically different from zero. That’s okay; sometimes a good model needs these regressors. However, be aware that model selection via AIC is an asymptotic method; the sample size needs to be large for the AIC to work well.
+
+You may be tempted to write a script that tries just about every combination of parameters and functional forms in a linear model, finds the one with the smallest AIC, and returns it; it’s an automatic statistician that would put you out of a job if your employers were aware of it. Resist the temptation! The AIC is a tool to help pick models, but is not a substitute for human domain knowledge. Left to its own devices, the AIC could select models that don’t have the best predictive power because they make no sense, and any subject matter expert would say so. The most important model selection tool is human knowledge of the problem. Lean heavily on it! Consider only models that make sense. Consult experts in the subject before building models.
+
+## Polynomial Regression
+Let’s back up and return to the univarate context, where we have one explanatory variable and one response variable. Why should we consider models only of the form $y = a+bx$? Why not quadratic models, $y=a+bx+cx^2$? Or higher-order polynomials,  $y = \beta_0+\beta_1x+\beta_2x^2+\cdots+ \beta_kx^k$? Well, we can in fact consider such models, and we call the topic polynomial regression. These are regression models of the form:
+$$y_i = \beta_0+\beta_1x_i+\beta_2x_i^2+\cdots+\beta_kx_i^k+\epsilon_i.$$ 
+
+We can view these models as multivariate models; we just add the variables  $x$, $x^2$, $x^3$, and so on to our model. These variabes are not linearly related to each other, so we can generally estimate such models.
+
+Let’s demonstrate by simulating a data set that takes a cubic form on the interval $[-1,1]$. This will be a cubic function plus some noise.
+
+```{r}
+x <- seq(-1, 1, length = 100)
+y <- x - x^3 + rnorm(100, sd = 0.1)
+plot(x, y, pch = 20)
+```
+
+Clearly a model that is just a line is not appropriate for this data set; diagnostic plots would reveal this.
+```{r}
+fit <- lm(y ~ x)
+summary(fit)
+old_par <- par()
+par(mfrow = c(2, 2))
+plot(fit)
+
+
+par(old_par)
+
+plot(x, y, pch = 20)
+abline(fit)
+```
+
+The problem is that the data should be about evenly distributed around the line, but instead we see data being more likely to be above the line at the start of the window, below in the first half, above in the second half, and below at the very end. This indicates an inappropriate functional form, and we should rectify the issue.
+
+Notice the estimated values? We see that the estimated coefficient for the intercept term is close to zero, and for the linear term close to 0.4. We know that the value of these coefficients in the true model are zero and one, respectively, but these parameters are not even close to the true values.
+
+```{r}
+plot(c(0, fit$coefficients[[1]]), c(1, fit$coefficients[[2]]), pch = 20,
+     xlim = c(-0.1, 0.1), ylim = c(0.1, 1.1), xlab = expression(beta[0]),
+     ylab = expression(beta[1]))
+plot_conf_ellipse(fit, add = TRUE)
+```
+
+When the model is misspecified this way, the eventual “best” values for $\beta_0$ and $\beta_1$ are 0 and 0.4 rather than the true values of 0 and 1. That is, if  $f(x) = x-x^3$ and  $\hat{f}(x;\beta_0,\beta_1) = \beta_0+\beta_1x$, the regression model will estimate the values  $\beta_0$ and $\beta_1$ that minimize
+$$S(\beta_0,\beta_1)=\int_{-1}^1(f(x)-\hat{f}(x;\beta_0,\beta_1))^2dx =\int_{-1}^1(f(x)-\hat{f}(x;\beta_0,\beta_1))^2dx  .$$
+ 
+
+Perhaps if we were to include a quadratic term? We can do so using the `I()` function (we cannot call `^` directly in a formula; this has special meaning in formulas other than exponentiation).
+```{r}
+fit2 <- lm(y ~ x + I(x^2))
+
+predict_func <- function(fit) {
+  response <- names(fit$model)[[1]]
+  explanatory <- names(fit$model)[[2]]
+  function(x, ...) {
+    dat <- data.frame(x)
+    names(dat) <- explanatory
+    predict(fit, dat, ...)
+  }
+}
+
+summary(fit2)
+fit2_func <- predict_func(fit2)
+plot(x, y, pch = 20)
+lines(x, fit2_func(x))
+```
+
+Unfortunately the quadratic model is not a big improvement. But did you notice that the resulting predicted line has a slight bend? There was an effort to fit the line but it didn’t quite work. But of course it didn’t; the model is incorrect, and the true value of the quadratic coefficient is zero. What we should do is insert a cubic term.
+
+```{r}
+fit3 <- lm(y ~ x + I(x^2) + I(x^3))
+summary(fit3)
+
+
+fit3_func <- predict_func(fit3)
+plot(x, y, pch = 20)
+lines(x, fit3_func(x))
+```
+
+Now our model has a good fit to the data, and the estimated coefficients are close to the truth.
+
+Should we have included the quadratic term even when we believed it might be wrong? The answer is yes. In general we won’t know what the true model is so we must include all polynomial orders up to the highest order  $k$.
+
+Okay, but by that same reasoning we don’t know that there isn’t a fourth-order term, or even higher, in our polynomial. Should we start including those terms too? Let’s see what happens when we do.
+
+```{r}
+fit4 <- lm(y ~ x + I(x^2) + I(x^3) + I(x^4))
+summary(fit4)
+
+fit4_func <- predict_func(fit4)
+plot(x, y, pch = 20)
+lines(x, fit4_func(x))
+```
+
+```{r}
+fit10 <- lm(y ~ x + I(x^2) + I(x^3) + I(x^4) + I(x^5) + I(x^6) + I(x^7) +
+                I(x^8) + I(x^9) + I(x^10))
+summary(fit10)
+fit10_func <- predict_func(fit10)
+plot(x, y, pch = 20)
+lines(x, fit10_func(x))
+```
+
+The quality of the fit is degrading. In my opinion, the last function is clearly not the same as the true function. Below is a plot containing all three functions, with the true function shown as a thick black line.
+
+```{r}
+plot(x, y, pch = 20)
+lines(x, x - x^3, lwd = 4)
+fit1_func <- predict_func(fit)
+lines(x, fit1_func(x), col = "blue", lwd = 2)
+lines(x, fit2_func(x), col = "cyan", lwd = 2)
+lines(x, fit3_func(x), col = "red", lwd = 2)
+lines(x, fit4_func(x), col = "green", lwd = 2)
+lines(x, fit10_func(x), col = "purple", lwd = 2)
+```
+
+Eventually, if we were to keep adding higher-order terms to the polynomial, we would have an *exact* fit to the data, where $\hat{y}_i = y_i.$ This is *not* good since the resulting model would be a monstrosity far from the truth and with no predictive power at all. Thus, when fitting polynomials to data, we want exactly as many polynomial terms as we need and not one more.
+
+That said, what if the true function is not a polynomial? I have exciting news: *polynomial regression can fit non-polynomial functions on compact (finite) intervals*! The reasons are beyond the scope of this course (go learn more analysis and linear algebra), but any continuous, smooth function can be approximated well by polynomials on compact intervals. Your job, as statistician, is to decide how many polynomial terms you need. Too few and you have a bad fit for the true function; too many and you risk overfitting. But tools such as the AIC can be used to select the proper order of polynomial regression, too.
+
+Here’s what the AIC has to say about the models considered here:
+
+```{r}
+sapply(list(fit, fit2, fit3, fit4, fit10), AIC)
+```
+The AIC was minimized for model 3, the third-order polynomial and the correct model order. This of course is not the end of polynomial order selection, but a good first step.
